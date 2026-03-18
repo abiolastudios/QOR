@@ -4567,3 +4567,44 @@ img {
   bottom: auto;
   top: -60px;
 }
+
+/* ===== LEGAL PAGES ===== */
+.legal-content {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.legal-content h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 40px 0 12px;
+  color: var(--text-primary);
+}
+
+.legal-content p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.legal-content ul {
+  margin-bottom: 16px;
+  padding-left: 20px;
+}
+
+.legal-content li {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  list-style: disc;
+  margin-bottom: 4px;
+}
+
+.legal-updated {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+  font-style: italic;
+}
