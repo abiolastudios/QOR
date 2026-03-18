@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="QOR ZK Compression — How zero-knowledge proofs compress ISO 20022 compliance data into 128-byte on-chain footprints while preserving complete financial privacy.">
+  <meta property="og:title" content="ZK Compression & Privacy — QOR | The Biometric Standard">
+  <meta property="og:description" content="Rich compliance data in. Mathematical proof out. Privacy preserved at the protocol level with ZK Compression.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/images/qor-logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@QOR_network">
+  <title>ZK Compression & Privacy — QOR | The Biometric Standard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== ZK COMPRESSION PAGE STYLES ===== */
+
+    /* --- Panopticon Section --- */
+    .zk-panopticon {
+      padding: var(--section-padding);
+      background: var(--bg-secondary);
+    }
+
+    .panopticon-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-top: 60px;
+    }
+
+    .panopticon-problems {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panopticon-problem {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: border-color var(--transition);
+    }
+
+    .panopticon-problem:hover {
+      border-color: var(--border-hover);
+    }
+
+    .panopticon-problem .pp-icon {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(249, 115, 22, 0.08);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+    }
+
+    .panopticon-problem .pp-content h4 {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .panopticon-problem .pp-content p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .panopticon-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panopticon-diagram {
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
+      border: 1px solid rgba(249, 115, 22, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .panopticon-diagram::before {
+      content: '';
+      position: absolute;
+      inset: 20px;
+      border-radius: 50%;
+      border: 1px dashed rgba(79, 195, 247, 0.2);
+    }
+
+    .panopticon-diagram::after {
+      content: '';
+      position: absolute;
+      inset: 50px;
+      border-radius: 50%;
+      border: 1px dashed rgba(249, 115, 22, 0.15);
+    }
+
+    .panopticon-center {
+      text-align: center;
+      z-index: 1;
+    }
+
+    .panopticon-center svg {
+      margin-bottom: 12px;
+    }
+
+    .panopticon-center p {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-orange);
+    }
+
+    .panopticon-center span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* --- ZK Flow (3-Step) --- */
+    .zk-flow {
+      padding: var(--section-padding);
+    }
+
+    .zk-flow-steps {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0;
+      align-items: flex-start;
+      margin-top: 60px;
+    }
+
+    .zk-step {
+      text-align: center;
+      padding: 32px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: border-color var(--transition), transform var(--transition);
+    }
+
+    .zk-step:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+    }
+
+    .zk-step-num {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      margin-bottom: 16px;
+    }
+
+    .zk-step-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-blue-dim);
+      border: 1px solid rgba(79, 195, 247, 0.25);
+    }
+
+    .zk-step h3 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .zk-step p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .zk-step-badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 4px 14px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 20px;
+      background: var(--accent-orange-dim);
+      color: var(--accent-orange);
+      border: 1px solid rgba(249, 115, 22, 0.2);
+    }
+
+    .zk-step-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 80px;
+    }
+
+    /* --- Photon Indexer --- */
+    .zk-photon {
+      padding: var(--section-padding);
+      background: var(--bg-secondary);
+    }
+
+    .photon-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-top: 60px;
+    }
+
+    .photon-content h3 {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .photon-content > p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    .photon-proofs {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .photon-proof {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .photon-proof span {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .photon-proof .proof-detail {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .photon-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photon-diagram {
+      width: 100%;
+      max-width: 380px;
+      padding: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+
+    .photon-diagram-title {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      margin-bottom: 24px;
+    }
+
+    .photon-flow-item {
+      padding: 14px;
+      margin-bottom: 8px;
+      border-radius: var(--radius-sm);
+      background: rgba(79, 195, 247, 0.04);
+      border: 1px solid rgba(79, 195, 247, 0.1);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .photon-flow-item.highlight {
+      background: var(--accent-orange-dim);
+      border-color: rgba(249, 115, 22, 0.2);
+      color: var(--accent-orange);
+      font-weight: 600;
+    }
+
+    .photon-flow-arrow {
+      display: flex;
+      justify-content: center;
+      padding: 4px 0;
+    }
+
+    .photon-size {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .photon-size-item {
+      text-align: center;
+    }
+
+    .photon-size-item .size-val {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .photon-size-item .size-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* --- Privacy vs Auditability --- */
+    .zk-balance {
+      padding: var(--section-padding);
+    }
+
+    .balance-visual {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 32px;
+      align-items: stretch;
+      margin-top: 60px;
+    }
+
+    .balance-side {
+      padding: 36px 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .balance-side h3 {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .balance-side.privacy h3 {
+      color: var(--accent-blue);
+    }
+
+    .balance-side.audit h3 {
+      color: var(--accent-orange);
+    }
+
+    .balance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .balance-list li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .balance-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      min-width: 180px;
+    }
+
+    .balance-bridge {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(79, 195, 247, 0.1), rgba(249, 115, 22, 0.1));
+      border: 2px solid;
+      border-image: linear-gradient(135deg, var(--accent-blue), var(--accent-orange)) 1;
+      border-radius: 50%;
+      border: 2px solid rgba(79, 195, 247, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .balance-bridge::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1px dashed rgba(249, 115, 22, 0.2);
+      animation: spinSlow 20s linear infinite;
+    }
+
+    @keyframes spinSlow {
+      to { transform: rotate(360deg); }
+    }
+
+    .balance-bridge-label {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .balance-bridge-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 160px;
+    }
+
+    /* --- Metrics Section --- */
+    .zk-metrics {
+      padding: var(--section-padding);
+      background: var(--bg-secondary);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-top: 60px;
+    }
+
+    .metric-card {
+      text-align: center;
+      padding: 40px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: border-color var(--transition), transform var(--transition);
+    }
+
+    .metric-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+    }
+
+    .metric-value {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .metric-value.blue {
+      color: var(--accent-blue);
+    }
+
+    .metric-value.orange {
+      color: var(--accent-orange);
+    }
+
+    .metric-value.gradient {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .metric-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .metric-detail {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .panopticon-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .panopticon-visual {
+        order: -1;
+      }
+      .zk-flow-steps {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .zk-step-arrow {
+        padding-top: 0;
+        transform: rotate(90deg);
+      }
+      .photon-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .photon-visual {
+        order: -1;
+      }
+      .balance-visual {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .balance-center {
+        flex-direction: row;
+        justify-content: center;
+        min-width: unset;
+      }
+      .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="assets/images/qor-logo.png" alt="QOR" class="logo-img">
+        <span class="logo-text">QOR</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="ecosystem.html">Ecosystem</a></li>
+        <li><a href="tokenomics.html">Tokenomics</a></li>
+        <li><a href="security.html">Security</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <a href="index.html#waitlist" class="nav-cta">Get Early Access</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== MOBILE MENU ===== -->
+  <div class="mobile-menu" id="mobileMenu">
+    <ul class="mobile-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="ecosystem.html">Ecosystem</a></li>
+      <li><a href="tokenomics.html">Tokenomics</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a href="index.html#waitlist" class="nav-cta mobile-cta">Get Early Access</a>
+  </div>
+
+
+  <!-- ===== SECTION 1: HERO ===== -->
+  <section class="about-hero">
+    <div class="about-hero-bg"></div>
+    <div class="container">
+      <div class="about-hero-content">
+        <p class="hero-tag">Privacy Architecture</p>
+        <h1 class="hero-title">Zero-Knowledge<br>Compression</h1>
+        <p class="hero-sub">Rich compliance data in. Mathematical proof out. Privacy preserved at the protocol level.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 2: THE PANOPTICON PROBLEM ===== -->
+  <section class="section zk-panopticon" id="panopticon">
+    <div class="container" style="position: relative;">
+      <svg class="fingerprint-watermark" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M100 20c-44 0-80 36-80 80s36 80 80 80 80-36 80-80-36-80-80-80zm0 10c39 0 70 31 70 70s-31 70-70 70-70-31-70-70 31-70 70-70z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 40c-33 0-60 27-60 60s27 60 60 60 60-27 60-60-27-60-60-60zm0 10c28 0 50 22 50 50s-22 50-50 50-50-22-50-50 22-50 50-50z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 60c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 10c17 0 30 13 30 30s-13 30-30 30-30-13-30-30 13-30 30-30z" stroke="#4FC3F7" stroke-width="1"/>
+  <circle cx="100" cy="100" r="12" stroke="#4FC3F7" stroke-width="1"/>
+</svg>
+      <p class="section-tag">The Core Problem</p>
+      <h2 class="section-title">The Panopticon Problem</h2>
+      <p class="section-sub" style="margin: 0 auto 0; text-align: center;">Compliance data on a public ledger creates a financial surveillance machine. QOR eliminates this by design.</p>
+
+      <div class="panopticon-grid">
+        <div class="panopticon-problems">
+          <div class="panopticon-problem" data-aos>
+            <div class="pp-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#F97316" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="3" stroke="#F97316" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="pp-content">
+              <h4>Surveillance Nightmare</h4>
+              <p>Storing ISO 20022 XML (9,000+ characters) on a public ledger exposes every remittance detail to anyone with a block explorer. A financial panopticon.</p>
+            </div>
+          </div>
+
+          <div class="panopticon-problem" data-aos>
+            <div class="pp-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#F97316" stroke-width="1.5"/>
+                <path d="M9 12l2 2 4-4" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="pp-content">
+              <h4>Regulatory Violation</h4>
+              <p>Public on-chain storage of personal financial data violates GDPR, financial privacy laws, and data protection regulations across jurisdictions.</p>
+            </div>
+          </div>
+
+          <div class="panopticon-problem" data-aos>
+            <div class="pp-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <rect x="2" y="6" width="20" height="12" rx="2" stroke="#F97316" stroke-width="1.5"/>
+                <path d="M2 10h20" stroke="#F97316" stroke-width="1.5"/>
+                <path d="M6 14h4" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="pp-content">
+              <h4>Astronomical Cost</h4>
+              <p>Solana account rent for raw XML storage at 9,000+ chars per transaction makes on-chain compliance data economically impossible at scale.</p>
+            </div>
+          </div>
+
+          <div class="panopticon-problem" data-aos>
+            <div class="pp-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#F97316" stroke-width="1.5"/>
+                <path d="M15 9l-6 6M9 9l6 6" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="pp-content">
+              <h4>The Real Need</h4>
+              <p>Compliance WITHOUT surveillance. Institutions need proof of regulatory adherence, but users deserve privacy. These must coexist.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panopticon-visual" data-aos>
+          <div class="panopticon-diagram">
+            <div class="panopticon-center">
+              <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+                <circle cx="32" cy="32" r="24" stroke="#F97316" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <path d="M20 32s5-8 12-8 12 8 12 8-5 8-12 8-12-8-12-8z" stroke="#4FC3F7" stroke-width="1.5"/>
+                <circle cx="32" cy="32" r="4" fill="#F97316" opacity="0.6"/>
+                <circle cx="32" cy="32" r="2" fill="#F97316"/>
+                <line x1="32" y1="4" x2="32" y2="12" stroke="#F97316" stroke-width="1" opacity="0.3"/>
+                <line x1="32" y1="52" x2="32" y2="60" stroke="#F97316" stroke-width="1" opacity="0.3"/>
+                <line x1="4" y1="32" x2="12" y2="32" stroke="#F97316" stroke-width="1" opacity="0.3"/>
+                <line x1="52" y1="32" x2="60" y2="32" stroke="#F97316" stroke-width="1" opacity="0.3"/>
+              </svg>
+              <p>Public Ledger</p>
+              <span>All-Seeing Eye</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 3: HOW ZK COMPRESSION WORKS (3-STEP FLOW) ===== -->
+  <section class="section zk-flow" id="how-it-works">
+    <div class="container">
+      <p class="section-tag">The Solution</p>
+      <h2 class="section-title">How ZK Compression Works</h2>
+      <p class="section-sub" style="margin: 0 auto 0; text-align: center;">Three steps. Full compliance. Zero exposure. From 9,000+ characters of sensitive XML to a 128-byte on-chain footprint.</p>
+
+      <div class="zk-flow-steps">
+        <!-- Step 1: Hash -->
+        <div class="zk-step" data-aos>
+          <div class="zk-step-num">Step 01</div>
+          <div class="zk-step-icon">
+            <svg viewBox="0 0 40 40" width="32" height="32" fill="none">
+              <rect x="6" y="6" width="28" height="28" rx="4" stroke="#4FC3F7" stroke-width="1.5"/>
+              <path d="M14 14h12M14 20h12M14 26h8" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="30" cy="30" r="6" fill="#000" stroke="#F97316" stroke-width="1.5"/>
+              <path d="M28 30h4M30 28v4" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>Hash</h3>
+          <p>The protocol takes a cryptographic fingerprint of sensitive remittance data. The full ISO 20022 XML is reduced to a deterministic, irreversible hash digest.</p>
+          <span class="zk-step-badge">Cryptographic Fingerprint</span>
+        </div>
+
+        <!-- Arrow -->
+        <div class="zk-step-arrow">
+          <svg viewBox="0 0 40 24" width="40" height="24" fill="none">
+            <path d="M0 12h32M26 6l6 6-6 6" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <!-- Step 2: Compress -->
+        <div class="zk-step" data-aos>
+          <div class="zk-step-num">Step 02</div>
+          <div class="zk-step-icon">
+            <svg viewBox="0 0 40 40" width="32" height="32" fill="none">
+              <path d="M20 6v28" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 14l8-8 8 8" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 26l8 8 8-8" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="8" y="17" width="24" height="6" rx="2" stroke="#4FC3F7" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3>Compress</h3>
+          <p>Only a 128-byte Merkle state root is stored on-chain via the Solana Metadata Pointer extension. The entire compliance payload compressed into a single verifiable root.</p>
+          <span class="zk-step-badge">Merkle State Root</span>
+        </div>
+
+        <!-- Arrow -->
+        <div class="zk-step-arrow">
+          <svg viewBox="0 0 40 24" width="40" height="24" fill="none">
+            <path d="M0 12h32M26 6l6 6-6 6" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <!-- Step 3: Store -->
+        <div class="zk-step" data-aos>
+          <div class="zk-step-num">Step 03</div>
+          <div class="zk-step-icon">
+            <svg viewBox="0 0 40 40" width="32" height="32" fill="none">
+              <rect x="6" y="10" width="28" height="20" rx="3" stroke="#4FC3F7" stroke-width="1.5"/>
+              <path d="M6 16h28" stroke="#4FC3F7" stroke-width="1.5"/>
+              <circle cx="20" cy="24" r="4" stroke="#F97316" stroke-width="1.5"/>
+              <path d="M20 22v4M18 24h4" stroke="#F97316" stroke-width="1" stroke-linecap="round"/>
+              <path d="M14 10V8a6 6 0 0 1 12 0v2" stroke="#F97316" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3>Store</h3>
+          <p>Actual plaintext XML is stored off-chain in a permissioned Data Availability (DA) layer. Only authorized counterparties with proper credentials can access the full data.</p>
+          <span class="zk-step-badge">Permissioned DA Layer</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 4: THE PHOTON INDEXER ===== -->
+  <section class="section zk-photon" id="photon">
+    <div class="container" style="position: relative;">
+      <svg class="fingerprint-watermark fingerprint-watermark-left" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M100 20c-44 0-80 36-80 80s36 80 80 80 80-36 80-80-36-80-80-80zm0 10c39 0 70 31 70 70s-31 70-70 70-70-31-70-70 31-70 70-70z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 40c-33 0-60 27-60 60s27 60 60 60 60-27 60-60-27-60-60-60zm0 10c28 0 50 22 50 50s-22 50-50 50-50-22-50-50 22-50 50-50z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 60c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 10c17 0 30 13 30 30s-13 30-30 30-30-13-30-30 13-30 30-30z" stroke="#4FC3F7" stroke-width="1"/>
+  <circle cx="100" cy="100" r="12" stroke="#4FC3F7" stroke-width="1"/>
+</svg>
+      <p class="section-tag">State Verification</p>
+      <h2 class="section-title">The Photon Indexer</h2>
+      <p class="section-sub" style="margin: 0 auto 0; text-align: center;">Open-source infrastructure for succinct ZK proofs of compliance — without revealing the underlying data.</p>
+
+      <div class="photon-grid">
+        <div class="photon-content" data-aos>
+          <h3>Prove Everything. Reveal Nothing.</h3>
+          <p>QOR leverages the open-source Photon indexer for state transitions, enabling users to generate succinct zero-knowledge proofs of compliance that can be verified on-chain in milliseconds — without exposing any raw personal data.</p>
+
+          <div class="photon-proofs">
+            <div class="photon-proof">
+              <svg viewBox="0 0 20 20" width="18" height="18" fill="none"><circle cx="10" cy="10" r="8" stroke="#4FC3F7" stroke-width="1.5"/><path d="M7 10l2 2 4-4" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div>
+                <span>OFAC Sanctions Clearance</span>
+                <span class="proof-detail">Prove you are not on any sanctions list — without revealing your identity</span>
+              </div>
+            </div>
+            <div class="photon-proof">
+              <svg viewBox="0 0 20 20" width="18" height="18" fill="none"><circle cx="10" cy="10" r="8" stroke="#4FC3F7" stroke-width="1.5"/><path d="M7 10l2 2 4-4" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div>
+                <span>Jurisdictional Residency</span>
+                <span class="proof-detail">Prove your jurisdiction of residence — without revealing your address</span>
+              </div>
+            </div>
+            <div class="photon-proof">
+              <svg viewBox="0 0 20 20" width="18" height="18" fill="none"><circle cx="10" cy="10" r="8" stroke="#4FC3F7" stroke-width="1.5"/><path d="M7 10l2 2 4-4" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div>
+                <span>Identity Verification</span>
+                <span class="proof-detail">Prove your identity is verified — without revealing biometric data or personal info</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="photon-visual" data-aos>
+          <div class="photon-diagram">
+            <div class="photon-diagram-title">Proof Generation Flow</div>
+
+            <div class="photon-flow-item">User's Private Data</div>
+            <div class="photon-flow-arrow">
+              <svg viewBox="0 0 24 20" width="20" height="16" fill="none">
+                <path d="M12 0v14M6 9l6 6 6-6" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <div class="photon-flow-item">Photon Indexer State</div>
+            <div class="photon-flow-arrow">
+              <svg viewBox="0 0 24 20" width="20" height="16" fill="none">
+                <path d="M12 0v14M6 9l6 6 6-6" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <div class="photon-flow-item">ZK Circuit Computation</div>
+            <div class="photon-flow-arrow">
+              <svg viewBox="0 0 24 20" width="20" height="16" fill="none">
+                <path d="M12 0v14M6 9l6 6 6-6" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <div class="photon-flow-item highlight">Succinct Proof (~384 bytes)</div>
+
+            <div class="photon-size">
+              <div class="photon-size-item">
+                <div class="size-val">~384</div>
+                <div class="size-label">Bytes / Proof</div>
+              </div>
+              <div class="photon-size-item">
+                <div class="size-val">&lt;1ms</div>
+                <div class="size-label">Verification</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 5: PRIVACY VS AUDITABILITY ===== -->
+  <section class="section zk-balance" id="balance">
+    <div class="container">
+      <p class="section-tag">The Equilibrium</p>
+      <h2 class="section-title">Privacy vs. Auditability</h2>
+      <p class="section-sub" style="margin: 0 auto 0; text-align: center;">Two opposing requirements. One elegant solution. ZK Compression satisfies both without compromise.</p>
+
+      <div class="balance-visual">
+        <!-- Left: User Privacy -->
+        <div class="balance-side privacy" data-aos>
+          <h3>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#4FC3F7" stroke-width="1.5"/>
+            </svg>
+            User's Right to Privacy
+          </h3>
+          <ul class="balance-list">
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#4FC3F7" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#4FC3F7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Biometric data stays on device
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#4FC3F7" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#4FC3F7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Personal information never on-chain
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#4FC3F7" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#4FC3F7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Transaction details remain private
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#4FC3F7" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#4FC3F7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              GDPR and data protection compliant
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#4FC3F7" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#4FC3F7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Sovereign control of identity
+            </li>
+          </ul>
+        </div>
+
+        <!-- Center: ZK Bridge -->
+        <div class="balance-center" data-aos>
+          <div class="balance-bridge">
+            <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+              <path d="M24 8l14 7v9c0 9-6 16-14 18-8-2-14-9-14-18v-9l14-7z" stroke="#4FC3F7" stroke-width="1.5"/>
+              <path d="M18 24l4 4 8-8" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="balance-bridge-label">ZK Compression</span>
+          <span class="balance-bridge-sub">Mathematical proof that satisfies both sides simultaneously</span>
+        </div>
+
+        <!-- Right: Institutional Auditability -->
+        <div class="balance-side audit" data-aos>
+          <h3>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="#F97316" stroke-width="1.5"/>
+              <path d="M9 12l2 2 4-4" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Institutional Auditability
+          </h3>
+          <ul class="balance-list">
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#F97316" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Compliance verification on-chain
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#F97316" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              OFAC sanctions screening proofs
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#F97316" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              KYC/AML attestation without data
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#F97316" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Immutable audit trail via Merkle roots
+            </li>
+            <li>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none"><circle cx="8" cy="8" r="6" stroke="#F97316" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Regulatory reporting ready
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 6: KEY METRICS ===== -->
+  <section class="section zk-metrics" id="metrics">
+    <div class="container">
+      <p class="section-tag">By the Numbers</p>
+      <h2 class="section-title">Key Metrics</h2>
+      <p class="section-sub" style="margin: 0 auto 0; text-align: center;">The compression ratio that makes privacy-preserving compliance economically viable on Solana.</p>
+
+      <div class="metrics-grid">
+        <div class="metric-card" data-aos>
+          <div class="metric-value blue">128</div>
+          <div class="metric-label">Byte On-Chain Footprint</div>
+          <div class="metric-detail">Merkle state root via Metadata Pointer</div>
+        </div>
+
+        <div class="metric-card" data-aos>
+          <div class="metric-value orange">~384</div>
+          <div class="metric-label">Byte Proof Size</div>
+          <div class="metric-detail">Succinct ZK proof of compliance</div>
+        </div>
+
+        <div class="metric-card" data-aos>
+          <div class="metric-value gradient">9,000+</div>
+          <div class="metric-label">Char XML Compressed</div>
+          <div class="metric-detail">Full ISO 20022 payload reduced to hash</div>
+        </div>
+
+        <div class="metric-card" data-aos>
+          <div class="metric-value blue">Zero</div>
+          <div class="metric-label">Personal Data On-Chain</div>
+          <div class="metric-detail">No biometrics, no PII, no raw identity</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 7: CTA ===== -->
+  <section class="section waitlist" id="waitlist">
+    <div class="container">
+      <div class="waitlist-content">
+        <h2 class="waitlist-title">Privacy-Preserving<br>Compliance Starts Here</h2>
+        <p class="waitlist-sub">Be the first to experience zero-knowledge financial infrastructure. Full compliance. Zero exposure.</p>
+        <form class="waitlist-form" id="waitlistForm">
+          <input type="email" placeholder="Enter your email address" required>
+          <button type="submit">Get Early Access</button>
+        </form>
+        <p class="waitlist-note">We respect your privacy. No spam, ever.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+
+        <div class="footer-col footer-brand">
+          <a href="index.html" class="footer-logo">
+            <img src="assets/images/qor-logo.png" alt="QOR" class="footer-logo-img">
+            <span>QOR</span>
+          </a>
+          <p class="footer-tagline">The Biometric Standard.<br>Sovereign Financial Architecture for the Global Digital Economy.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Pages</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ecosystem.html">Ecosystem</a></li>
+            <li><a href="tokenomics.html">Tokenomics</a></li>
+            <li><a href="security.html">Security</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="Whitepaper QOR.pdf" target="_blank">Whitepaper</a></li>
+            <li><a href="contact.html#faq">FAQ</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <div class="social-links">
+            <a href="https://x.com/QOR_network" aria-label="Twitter/X">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+            <a href="https://t.me/QOR_Networks" aria-label="Telegram">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l.002.001-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15 4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 QOR. All rights reserved.</p>
+        <p class="footer-bottom-tagline">The Biometric Standard</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="js/script.js"></script>
+</body>
+</html>

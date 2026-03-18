@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="QOR ISO 20022 & Regulatory Oracles — Native programmatic compliance mapping Solana transactions to pacs.008 banking schema. Transfer hooks, sanctions screening, and decentralized API gateway for institutional finance.">
+  <meta property="og:title" content="ISO 20022 & Regulatory Oracles — QOR | The Biometric Standard">
+  <meta property="og:description" content="QOR bridges decentralized finance with global banking standards. Native ISO 20022 mapping, Transfer Hook compliance, and decentralized API gateway.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/images/qor-logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@QOR_network">
+  <title>ISO 20022 & Regulatory Oracles — QOR | The Biometric Standard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="assets/images/qor-logo.png" alt="QOR" class="logo-img">
+        <span class="logo-text">QOR</span>
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="ecosystem.html">Ecosystem</a></li>
+        <li><a href="tokenomics.html">Tokenomics</a></li>
+        <li><a href="security.html">Security</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+
+      <a href="index.html#waitlist" class="nav-cta">Get Early Access</a>
+
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== MOBILE MENU ===== -->
+  <div class="mobile-menu" id="mobileMenu">
+    <ul class="mobile-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="ecosystem.html">Ecosystem</a></li>
+      <li><a href="tokenomics.html">Tokenomics</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a href="index.html#waitlist" class="nav-cta mobile-cta">Get Early Access</a>
+  </div>
+
+
+  <!-- ===== SECTION 1: HERO ===== -->
+  <section class="about-hero">
+    <div class="about-hero-bg"></div>
+    <div class="container">
+      <div class="about-hero-content">
+        <p class="hero-tag">Institutional Compliance</p>
+        <h1 class="hero-title">ISO 20022. Native.<br>Programmatic.</h1>
+        <p class="hero-sub">QOR bridges decentralized finance with global banking standards — without centralized compliance bridges.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 2: THE PROBLEM ===== -->
+  <section class="section" id="problem">
+    <div class="container" style="position: relative;">
+      <svg class="fingerprint-watermark" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M100 20c-44 0-80 36-80 80s36 80 80 80 80-36 80-80-36-80-80-80zm0 10c39 0 70 31 70 70s-31 70-70 70-70-31-70-70 31-70 70-70z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 40c-33 0-60 27-60 60s27 60 60 60 60-27 60-60-27-60-60-60zm0 10c28 0 50 22 50 50s-22 50-50 50-50-22-50-50 22-50 50-50z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 60c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 10c17 0 30 13 30 30s-13 30-30 30-30-13-30-30 13-30 30-30z" stroke="#4FC3F7" stroke-width="1"/>
+  <circle cx="100" cy="100" r="12" stroke="#4FC3F7" stroke-width="1"/>
+</svg>
+      <p class="section-tag">The Problem</p>
+      <h2 class="section-title">Banks See Gibberish</h2>
+      <p class="section-sub">To institutional finance, blockchain data is unauditable noise. This is the compliance wall that keeps DeFi out of global banking.</p>
+
+      <div class="stats-grid">
+        <div class="stat-card" data-aos>
+          <div class="stat-icon-wrap">
+            <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+              <rect x="8" y="4" width="48" height="56" rx="8" stroke="#F97316" stroke-width="1.2" opacity="0.6"/>
+              <path d="M20 20h24M20 28h18M20 36h22M20 44h16" stroke="#F97316" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+              <line x1="16" y1="50" x2="48" y2="14" stroke="#F97316" stroke-width="1.5" opacity="0.7"/>
+              <line x1="48" y1="50" x2="16" y2="14" stroke="#F97316" stroke-width="1.5" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="stat-label">Standard crypto transfers<br>lack invoicing data &<br>beneficial ownership records</div>
+        </div>
+        <div class="stat-card" data-aos>
+          <div class="stat-icon-wrap">
+            <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+              <path d="M32 8l20 10v14c0 12-8 22-20 26-12-4-20-14-20-26V18L32 8z" stroke="#F97316" stroke-width="1.2" opacity="0.6"/>
+              <path d="M24 32l-4 4M40 32l4 4M28 40c0 0 2 2 4 2s4-2 4-2" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+              <circle cx="28" cy="30" r="2" fill="#F97316" opacity="0.5"/>
+              <circle cx="36" cy="30" r="2" fill="#F97316" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="stat-label">AML/CTF regulations require<br>structured data blockchains<br>don't natively provide</div>
+        </div>
+        <div class="stat-card" data-aos>
+          <div class="stat-icon-wrap">
+            <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+              <rect x="4" y="20" width="24" height="24" rx="4" stroke="#4FC3F7" stroke-width="1.2" opacity="0.6"/>
+              <rect x="36" y="20" width="24" height="24" rx="4" stroke="#F97316" stroke-width="1.2" opacity="0.6"/>
+              <path d="M28 32h8" stroke="#F97316" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.7"/>
+              <path d="M44 28v8M40 32h8" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+              <path d="M32 12l-4 4M32 12l4 4" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+              <path d="M32 52l-4-4M32 52l4-4" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="stat-label">"Compliance bridges" are<br>vulnerability vectors —<br>centralized points of failure</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 3: NATIVE ISO 20022 MAPPING ===== -->
+  <section class="section" id="iso-mapping">
+    <div class="container">
+      <p class="section-tag">Native Mapping</p>
+      <h2 class="section-title">ISO 20022 on Solana</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">QOR maps Solana transactions to pacs.008 (Customer Credit Transfer) schema — natively, without middleware translation layers.</p>
+
+      <div class="compare-table" data-aos>
+        <div class="compare-header">
+          <div class="compare-label">ISO 20022 Field</div>
+          <div class="compare-col compare-sol">QOR / Solana Mapping</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">pacs.008</div>
+          <div class="compare-col"><span class="compare-good">Token-2022 Transfer Instruction</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">InstrId</div>
+          <div class="compare-col"><span class="compare-good">Solana Transaction Signature (TxID)</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">EndToEndId</div>
+          <div class="compare-col"><span class="compare-good">Embedded Transaction Memo / Instruction Data</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">UltmtDbtr</div>
+          <div class="compare-col"><span class="compare-good">Biometric Identity Anchor (ZK-Verified)</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">RmtInf</div>
+          <div class="compare-col"><span class="compare-good">Metadata Pointer Extension (On-chain Hash)</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">Sanctions Check</div>
+          <div class="compare-col"><span class="compare-good">Compliance Transfer Hook (Atomic Revert)</span></div>
+        </div>
+      </div>
+
+      <div class="section-cta" style="margin-top: 48px;">
+        <a href="Whitepaper QOR.pdf" target="_blank" class="btn-secondary">Read the Whitepaper</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 4: TRANSFER HOOKS & COMPLIANCE ORACLES ===== -->
+  <section class="section" id="transfer-hooks">
+    <div class="container">
+      <p class="section-tag">Programmatic Compliance</p>
+      <h2 class="section-title">Transfer Hooks &<br>Compliance Oracles</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">Solana Token-2022 Transfer Hooks create a hard programmatic gate — not a suggestion layer. Compliance is atomic, not optional.</p>
+
+      <div class="features-grid">
+        <div class="feature-card" data-aos>
+          <div class="feature-icon">
+            <svg viewBox="0 0 80 80" width="64" height="64" fill="none">
+              <!-- Hook symbol -->
+              <circle cx="40" cy="28" r="14" stroke="#4FC3F7" stroke-width="1.2" stroke-dasharray="4 3"/>
+              <path d="M40 42v12" stroke="#4FC3F7" stroke-width="1.2"/>
+              <path d="M34 54h12" stroke="#4FC3F7" stroke-width="1.2" stroke-linecap="round"/>
+              <!-- Pause icon -->
+              <rect x="35" y="22" width="4" height="12" rx="1" fill="#F97316" opacity="0.7"/>
+              <rect x="41" y="22" width="4" height="12" rx="1" fill="#F97316" opacity="0.7"/>
+              <!-- Signal waves -->
+              <path d="M56 20c4 4 4 12 0 16" stroke="#4FC3F7" stroke-width="0.8" opacity="0.4"/>
+              <path d="M62 16c6 6 6 20 0 24" stroke="#4FC3F7" stroke-width="0.8" opacity="0.3"/>
+            </svg>
+          </div>
+          <h3>Hook Intercept</h3>
+          <p>Every transfer triggers a Transfer Hook that pauses execution mid-transaction to query the Regulatory Oracle before settlement.</p>
+        </div>
+
+        <div class="feature-card" data-aos>
+          <div class="feature-icon">
+            <svg viewBox="0 0 80 80" width="64" height="64" fill="none">
+              <!-- Oracle/eye symbol -->
+              <ellipse cx="40" cy="40" rx="24" ry="16" stroke="#4FC3F7" stroke-width="1.2"/>
+              <circle cx="40" cy="40" r="8" stroke="#F97316" stroke-width="1.2"/>
+              <circle cx="40" cy="40" r="3" fill="#F97316"/>
+              <!-- Scan lines -->
+              <line x1="12" y1="40" x2="16" y2="40" stroke="#4FC3F7" stroke-width="0.8" opacity="0.5"/>
+              <line x1="64" y1="40" x2="68" y2="40" stroke="#4FC3F7" stroke-width="0.8" opacity="0.5"/>
+              <!-- Label dots -->
+              <circle cx="20" cy="22" r="2" stroke="#4FC3F7" stroke-width="0.8" opacity="0.4"/>
+              <circle cx="60" cy="22" r="2" stroke="#4FC3F7" stroke-width="0.8" opacity="0.4"/>
+              <path d="M22 22l12 10M58 22l-12 10" stroke="#4FC3F7" stroke-width="0.6" opacity="0.3" stroke-dasharray="2 2"/>
+            </svg>
+          </div>
+          <h3>Regulatory Oracle</h3>
+          <p>Queries Chainalysis/TRM Labs oracle networks. Checks the biometric identity anchor and wallet address against OFAC sanctions lists in real time.</p>
+        </div>
+
+        <div class="feature-card" data-aos>
+          <div class="feature-icon">
+            <svg viewBox="0 0 80 80" width="64" height="64" fill="none">
+              <!-- Shield with X -->
+              <path d="M40 10l24 12v16c0 14-10 26-24 30-14-4-24-16-24-30V22l24-12z" stroke="#4FC3F7" stroke-width="1.2"/>
+              <path d="M30 36l20 16M50 36L30 52" stroke="#F97316" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+              <!-- Revert arrow -->
+              <path d="M60 68H46l6-5M46 68l6 5" stroke="#F97316" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Atomic Revert</h3>
+          <p>If flagged, the transaction atomically reverts. Not escrow. Not manual review. It mathematically fails — a hard programmatic gate for institutional confidence.</p>
+        </div>
+      </div>
+
+      <div class="inst-points" style="max-width: 720px; margin: 60px auto 0;">
+        <div class="inst-point" data-aos>
+          <div class="inst-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F97316" stroke-width="1.5">
+              <path d="M9 12l2 2 4-4"/>
+              <path d="M12 3l9 4.5v5c0 5.5-3.8 10.3-9 11.5-5.2-1.2-9-6-9-11.5v-5L12 3z"/>
+            </svg>
+          </div>
+          <div>
+            <h4>Not a Blacklist — A Mathematical Proof</h4>
+            <p>The compliance check is embedded in the token program itself. There is no admin key, no override, no "compliance officer discretion." If the oracle returns flagged, the transaction is physically impossible to complete.</p>
+          </div>
+        </div>
+        <div class="inst-point" data-aos>
+          <div class="inst-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#F97316" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div>
+            <h4>Sub-Second Verification</h4>
+            <p>The entire hook-query-verify-settle cycle completes within Solana's 400ms block time. No waiting. No pending states. Compliance at the speed of DeFi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 5: DECENTRALIZED API GATEWAY ===== -->
+  <section class="section" id="api-gateway">
+    <div class="container" style="position: relative;">
+      <svg class="fingerprint-watermark fingerprint-watermark-left" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M100 20c-44 0-80 36-80 80s36 80 80 80 80-36 80-80-36-80-80-80zm0 10c39 0 70 31 70 70s-31 70-70 70-70-31-70-70 31-70 70-70z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 40c-33 0-60 27-60 60s27 60 60 60 60-27 60-60-27-60-60-60zm0 10c28 0 50 22 50 50s-22 50-50 50-50-22-50-50 22-50 50-50z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 60c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 10c17 0 30 13 30 30s-13 30-30 30-30-13-30-30 13-30 30-30z" stroke="#4FC3F7" stroke-width="1"/>
+  <circle cx="100" cy="100" r="12" stroke="#4FC3F7" stroke-width="1"/>
+</svg>
+      <p class="section-tag">Enterprise Integration</p>
+      <h2 class="section-title">Decentralized API Gateway</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">Compliance officers can't run Solana CLI. QOR's middleware network reads on-chain metadata and reconstructs it into formats legacy banking systems understand.</p>
+
+      <div class="features-grid">
+        <div class="feature-card" data-aos>
+          <div class="feature-icon">
+            <svg viewBox="0 0 80 80" width="64" height="64" fill="none">
+              <!-- Chain blocks -->
+              <rect x="8" y="30" width="20" height="20" rx="4" stroke="#4FC3F7" stroke-width="1.2"/>
+              <text x="18" y="44" text-anchor="middle" fill="#4FC3F7" font-size="8" font-family="Space Grotesk, monospace" opacity="0.7">0x</text>
+              <!-- Arrow -->
+              <path d="M32 40h16" stroke="#4FC3F7" stroke-width="1" stroke-dasharray="3 2"/>
+              <polygon points="48,37 54,40 48,43" fill="#4FC3F7" opacity="0.7"/>
+              <!-- XML/JSON doc -->
+              <rect x="56" y="26" width="18" height="28" rx="3" stroke="#F97316" stroke-width="1.2"/>
+              <path d="M60 32h10M60 36h8M60 40h10M60 44h6" stroke="#F97316" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/>
+            </svg>
+          </div>
+          <h3>On-Chain to XML/JSON</h3>
+          <p>The middleware network reads on-chain metadata pointers and reconstructs structured data into XML/JSON — the formats banking ERP systems consume natively.</p>
+        </div>
+
+        <div class="feature-card" data-aos>
+          <div class="feature-icon">
+            <svg viewBox="0 0 80 80" width="64" height="64" fill="none">
+              <!-- Distributed nodes -->
+              <circle cx="40" cy="20" r="8" stroke="#4FC3F7" stroke-width="1.2"/>
+              <circle cx="20" cy="52" r="8" stroke="#4FC3F7" stroke-width="1.2"/>
+              <circle cx="60" cy="52" r="8" stroke="#4FC3F7" stroke-width="1.2"/>
+              <!-- Connections -->
+              <line x1="35" y1="27" x2="24" y2="45" stroke="#4FC3F7" stroke-width="0.8" opacity="0.4"/>
+              <line x1="45" y1="27" x2="56" y2="45" stroke="#4FC3F7" stroke-width="0.8" opacity="0.4"/>
+              <line x1="28" y1="52" x2="52" y2="52" stroke="#4FC3F7" stroke-width="0.8" opacity="0.4"/>
+              <!-- Inner dots -->
+              <circle cx="40" cy="20" r="3" fill="#F97316" opacity="0.7"/>
+              <circle cx="20" cy="52" r="3" fill="#F97316" opacity="0.7"/>
+              <circle cx="60" cy="52" r="3" fill="#F97316" opacity="0.7"/>
+            </svg>
+          </div>
+          <h3>No Single Point of Failure</h3>
+          <p>The gateway is decentralized across the QOR bonded node network. No single entity can censor, modify, or shut down the compliance data pipeline.</p>
+        </div>
+
+        <div class="feature-card" data-aos>
+          <div class="feature-icon">
+            <svg viewBox="0 0 80 80" width="64" height="64" fill="none">
+              <!-- Bank building -->
+              <path d="M40 14l24 12H16l24-12z" stroke="#F97316" stroke-width="1.2"/>
+              <rect x="20" y="26" width="8" height="24" rx="1" stroke="#4FC3F7" stroke-width="1" opacity="0.5"/>
+              <rect x="36" y="26" width="8" height="24" rx="1" stroke="#4FC3F7" stroke-width="1" opacity="0.5"/>
+              <rect x="52" y="26" width="8" height="24" rx="1" stroke="#4FC3F7" stroke-width="1" opacity="0.5"/>
+              <rect x="14" y="50" width="52" height="6" rx="2" stroke="#F97316" stroke-width="1.2"/>
+              <!-- Blockchain arrow -->
+              <path d="M40 64v6" stroke="#4FC3F7" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+              <path d="M34 70h12" stroke="#4FC3F7" stroke-width="1" opacity="0.4"/>
+            </svg>
+          </div>
+          <h3>From Blockchain to Bank</h3>
+          <p>Trustlessly. Compliance officers get the ISO-formatted data they need. Users retain sovereignty. No centralized translation layer in between.</p>
+        </div>
+      </div>
+
+      <div class="masters-tagline" data-aos style="margin-top: 60px;">
+        <h3>From Blockchain to Bank, Trustlessly.</h3>
+        <p>The first system where on-chain transactions are natively readable by institutional compliance infrastructure — without sacrificing decentralization.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 6: CTA / WAITLIST ===== -->
+  <section class="section waitlist" id="waitlist">
+    <div class="container">
+      <div class="waitlist-content">
+        <h2 class="waitlist-title">Build on the<br>Compliance Standard</h2>
+        <p class="waitlist-sub">Be the first to integrate ISO 20022-native blockchain compliance. Institutional-grade. Decentralized. Programmatic.</p>
+        <form class="waitlist-form" id="waitlistForm">
+          <input type="email" placeholder="Enter your email address" required>
+          <button type="submit">Get Early Access</button>
+        </form>
+        <p class="waitlist-note">We respect your privacy. No spam, ever.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+
+        <div class="footer-col footer-brand">
+          <a href="index.html" class="footer-logo">
+            <img src="assets/images/qor-logo.png" alt="QOR" class="footer-logo-img">
+            <span>QOR</span>
+          </a>
+          <p class="footer-tagline">The Biometric Standard.<br>Sovereign Financial Architecture for the Global Digital Economy.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Pages</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ecosystem.html">Ecosystem</a></li>
+            <li><a href="tokenomics.html">Tokenomics</a></li>
+            <li><a href="security.html">Security</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="Whitepaper QOR.pdf" target="_blank">Whitepaper</a></li>
+            <li><a href="contact.html#faq">FAQ</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <div class="social-links">
+            <a href="https://x.com/QOR_network" aria-label="Twitter/X">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+            <a href="https://t.me/QOR_Networks" aria-label="Telegram">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l.002.001-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15 4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 QOR. All rights reserved.</p>
+        <p class="footer-bottom-tagline">The Biometric Standard</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="QOR Cross-Chain & EVM Controller — One biometric identity across every blockchain. Trustless light client proofs, master controller architecture, and chain-agnostic sovereignty.">
+  <meta property="og:title" content="Cross-Chain & EVM Controller — QOR | The Biometric Standard">
+  <meta property="og:description" content="One biometric identity. Every blockchain. No vendor lock-in. Trustless ZK-SNARK state proofs across Solana, Ethereum, Base, BSC, and Avalanche.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/images/qor-logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@QOR_network">
+  <title>Cross-Chain & EVM Controller — QOR | The Biometric Standard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="assets/images/qor-logo.png" alt="QOR" class="logo-img">
+        <span class="logo-text">QOR</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="ecosystem.html">Ecosystem</a></li>
+        <li><a href="tokenomics.html">Tokenomics</a></li>
+        <li><a href="security.html">Security</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <a href="index.html#waitlist" class="nav-cta">Get Early Access</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== MOBILE MENU ===== -->
+  <div class="mobile-menu" id="mobileMenu">
+    <ul class="mobile-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="ecosystem.html">Ecosystem</a></li>
+      <li><a href="tokenomics.html">Tokenomics</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a href="index.html#waitlist" class="nav-cta mobile-cta">Get Early Access</a>
+  </div>
+
+
+  <!-- ===== SECTION 1: HERO ===== -->
+  <section class="about-hero eco-hero">
+    <div class="about-hero-bg"></div>
+    <div class="container">
+      <div class="about-hero-content">
+        <p class="hero-tag">Platform Resilience</p>
+        <h1 class="hero-title">Cross-Chain. Trustless.<br>Future-Proof.</h1>
+        <p class="hero-sub">One biometric identity. Every blockchain. No vendor lock-in.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 2: THE PLATFORM RISK ===== -->
+  <section class="section eco-pillars" id="platform-risk">
+    <div class="container" style="position: relative;">
+      <svg class="fingerprint-watermark" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M100 20c-44 0-80 36-80 80s36 80 80 80 80-36 80-80-36-80-80-80zm0 10c39 0 70 31 70 70s-31 70-70 70-70-31-70-70 31-70 70-70z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 40c-33 0-60 27-60 60s27 60 60 60 60-27 60-60-27-60-60-60zm0 10c28 0 50 22 50 50s-22 50-50 50-50-22-50-50 22-50 50-50z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 60c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 10c17 0 30 13 30 30s-13 30-30 30-30-13-30-30 13-30 30-30z" stroke="#4FC3F7" stroke-width="1"/>
+  <circle cx="100" cy="100" r="12" stroke="#4FC3F7" stroke-width="1"/>
+</svg>
+      <p class="section-tag">The Problem</p>
+      <h2 class="section-title">The Platform Risk</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">Relying on a single Layer 1 is systemic fragility. A protocol that cannot move is a protocol that cannot survive.</p>
+
+      <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="pillar-card" data-aos>
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M28 8v40" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 28h32" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="28" cy="28" r="18" stroke="#4FC3F7" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <path d="M18 18l20 20M38 18l-20 20" stroke="#F97316" stroke-width="1" opacity="0.4"/>
+            </svg>
+          </div>
+          <h3>Single-Chain Lock-In</h3>
+          <p>Building exclusively on one L1 creates a single point of failure. If that chain stalls, degrades, or loses developer mindshare, the entire protocol is at risk — with no escape route.</p>
+        </div>
+
+        <div class="pillar-card" data-aos>
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M14 42l14-28 14 28" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19 32h18" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="28" cy="14" r="4" stroke="#F97316" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3>The Scaling Wars</h3>
+          <p>If Monad, Sei, or another high-performance EVM chain wins the scaling wars, a Solana-only architecture becomes a dangerous liability. The winner is not yet decided — and may never be.</p>
+        </div>
+
+        <div class="pillar-card" data-aos>
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M12 28c0-8.8 7.2-16 16-16s16 7.2 16 16-7.2 16-16 16" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M28 44c-8.8 0-16-7.2-16-16" stroke="#4FC3F7" stroke-width="1.5" stroke-dasharray="3 3" stroke-linecap="round"/>
+              <path d="M24 22l8 6-8 6" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Chain-Agnostic Survival</h3>
+          <p>QOR must be chain-agnostic to survive long-term. The protocol needs the ability to operate across any dominant chain — without rebuilding its biometric engine from scratch each time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 3: MASTER CONTROLLER ARCHITECTURE ===== -->
+  <section class="section eco-magicblock" id="master-controller">
+    <div class="container">
+      <p class="section-tag">Core Architecture</p>
+      <h2 class="section-title">The Master Controller</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">One Solana core wallet controls satellite wallets across every EVM chain. Authenticate once — operate everywhere.</p>
+
+      <div class="magicblock-flow">
+        <div class="mb-step mb-auth" data-aos>
+          <div class="mb-step-badge">Core</div>
+          <div class="mb-step-icon">
+            <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+              <rect x="12" y="4" width="40" height="56" rx="8" stroke="#4FC3F7" stroke-width="1.5"/>
+              <circle cx="32" cy="24" r="8" stroke="#F97316" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <circle cx="32" cy="24" r="3" stroke="#F97316" stroke-width="1"/>
+              <circle cx="32" cy="24" r="1" fill="#F97316"/>
+              <path d="M20 44h24" stroke="#4FC3F7" stroke-width="1" opacity="0.4"/>
+              <path d="M20 48h24" stroke="#4FC3F7" stroke-width="1" opacity="0.3"/>
+              <text x="32" y="40" text-anchor="middle" fill="#4FC3F7" font-size="6" font-family="Inter, sans-serif" font-weight="600">SOLANA</text>
+            </svg>
+          </div>
+          <h4>Master Controller</h4>
+          <p>Solana core wallet. User authenticates with biometrics via the SecP256R1 engine. This single authentication governs all satellite wallets.</p>
+        </div>
+
+        <div class="mb-connector" data-aos>
+          <div class="mb-connector-line"></div>
+          <div class="mb-connector-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <div class="mb-step mb-seamless" data-aos>
+          <div class="mb-step-badge mb-badge-multi">Satellites</div>
+          <div class="mb-seamless-grid">
+            <div class="mb-mini-tx">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Ethereum</span>
+            </div>
+            <div class="mb-mini-tx">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="12" r="8" stroke="#4FC3F7" stroke-width="1.5"/><path d="M8 12h8M12 8v8" stroke="#4FC3F7" stroke-width="1.2" stroke-linecap="round"/></svg>
+              <span>Base</span>
+            </div>
+            <div class="mb-mini-tx">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M12 2l10 6v8l-10 6-10-6V8l10-6z" stroke="#F97316" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              <span>BSC</span>
+            </div>
+            <div class="mb-mini-tx">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M12 4l8 4v8l-8 4-8-4V8l8-4z" stroke="#F97316" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="#4FC3F7" stroke-width="1"/></svg>
+              <span>Avalanche</span>
+            </div>
+            <div class="mb-mini-tx">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M12 2v20M2 12h20" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>+ More</span>
+            </div>
+          </div>
+          <h4>EVM Satellite Wallets</h4>
+          <p>Satellite accounts on Ethereum, Base, BSC, Avalanche execute via cryptographic authorization from the master controller. No need to rebuild the SecP256R1 biometric engine on every chain.</p>
+        </div>
+      </div>
+
+      <div class="mb-analogy" data-aos>
+        <div class="mb-analogy-icon">
+          <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+            <circle cx="16" cy="10" r="6" stroke="#F97316" stroke-width="1.5"/>
+            <circle cx="16" cy="10" r="2" stroke="#F97316" stroke-width="1"/>
+            <path d="M6 28c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p><strong>Key insight:</strong> One biometric identity, authenticated once on Solana, cryptographically controls accounts across every supported EVM chain. The biometric engine lives in one place — its authority extends everywhere.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 4: TRUSTLESS LIGHT CLIENT STATE PROOFS ===== -->
+  <section class="section eco-comparison" id="state-proofs">
+    <div class="container">
+      <p class="section-tag">Zero-Trust Verification</p>
+      <h2 class="section-title">Trustless Light Client State Proofs</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">No centralized multi-sig bridges. No trusted validators. Just math — ZK-SNARK proofs of Solana state transitions verified on-chain.</p>
+
+      <div class="compare-table" data-aos>
+        <div class="compare-header">
+          <div class="compare-label"></div>
+          <div class="compare-col compare-eth">
+            <span class="compare-chain-name">Traditional Bridges</span>
+          </div>
+          <div class="compare-col compare-sol">
+            <span class="compare-chain-name">QOR Light Client</span>
+          </div>
+        </div>
+
+        <div class="compare-row">
+          <div class="compare-label">Trust Model</div>
+          <div class="compare-col compare-eth">
+            <span class="compare-bad">Multi-sig validators</span>
+          </div>
+          <div class="compare-col compare-sol">
+            <span class="compare-good">Trustless ZK proofs</span>
+          </div>
+        </div>
+
+        <div class="compare-row">
+          <div class="compare-label">Exploit Surface</div>
+          <div class="compare-col compare-eth">
+            <span class="compare-bad">Validator collusion / key theft</span>
+          </div>
+          <div class="compare-col compare-sol">
+            <span class="compare-good">Mathematically verifiable</span>
+          </div>
+        </div>
+
+        <div class="compare-row">
+          <div class="compare-label">Proof System</div>
+          <div class="compare-col compare-eth">
+            <span class="compare-bad">Signature aggregation</span>
+          </div>
+          <div class="compare-col compare-sol">
+            <span class="compare-good">ZK-SNARK (PLONK)</span>
+          </div>
+        </div>
+
+        <div class="compare-row">
+          <div class="compare-label">Verification Cost</div>
+          <div class="compare-col compare-eth">
+            <span class="compare-bad">Varies / opaque</span>
+          </div>
+          <div class="compare-col compare-sol">
+            <span class="compare-good">~2M gas (optimized)</span>
+          </div>
+        </div>
+
+        <div class="compare-row">
+          <div class="compare-label">Inspiration</div>
+          <div class="compare-col compare-eth">
+            <span class="compare-bad">Ad-hoc designs</span>
+          </div>
+          <div class="compare-col compare-sol">
+            <span class="compare-good">Nil Foundation architecture</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="compare-quote" data-aos>
+        <blockquote>"Proof transmitted to the target EVM network. The smart contract verifies the Solana state root plus biometric authorization. No humans in the loop — only mathematics."</blockquote>
+      </div>
+
+      <!-- Proof Flow Diagram -->
+      <div class="bonding-flow" data-aos style="margin-top: 60px;">
+        <div class="bonding-node bonding-user">
+          <div class="bonding-node-icon">
+            <svg viewBox="0 0 40 40" width="36" height="36" fill="none">
+              <circle cx="20" cy="14" r="7" stroke="#4FC3F7" stroke-width="1.5"/>
+              <circle cx="20" cy="14" r="3" stroke="#F97316" stroke-width="1" stroke-dasharray="2 2"/>
+              <path d="M8 36c0-6.6 5.4-12 12-12s12 5.4 12 12" stroke="#4FC3F7" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <span class="bonding-node-label">Biometric Auth<br><small style="opacity:0.6">on Solana</small></span>
+        </div>
+
+        <div class="bonding-pipe">
+          <div class="bonding-pipe-line"></div>
+          <div class="bonding-fee-labels">
+            <span class="bonding-fee">ZK-SNARK (PLONK)<br><strong>State Proof</strong></span>
+          </div>
+        </div>
+
+        <div class="bonding-node bonding-relayer">
+          <div class="bonding-node-icon">
+            <svg viewBox="0 0 40 40" width="36" height="36" fill="none">
+              <rect x="6" y="6" width="28" height="28" rx="4" stroke="#F97316" stroke-width="1.5"/>
+              <path d="M14 20h12" stroke="#F97316" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M20 14v12" stroke="#F97316" stroke-width="1.2" stroke-linecap="round"/>
+              <rect x="12" y="12" width="16" height="16" rx="2" stroke="#4FC3F7" stroke-width="1" stroke-dasharray="2 2"/>
+            </svg>
+          </div>
+          <span class="bonding-node-label">Proof<br>Transmission</span>
+        </div>
+
+        <div class="bonding-pipe">
+          <div class="bonding-pipe-line"></div>
+          <div class="bonding-fee-labels">
+            <span class="bonding-fee">~2M Gas<br><strong>Verification</strong></span>
+          </div>
+        </div>
+
+        <div class="bonding-node bonding-lock">
+          <div class="bonding-node-icon">
+            <svg viewBox="0 0 40 40" width="36" height="36" fill="none">
+              <path d="M20 4l14 7v9c0 9-6 16-14 18-8-2-14-9-14-18v-9l14-7z" stroke="#F97316" stroke-width="1.5"/>
+              <path d="M15 20l3 3 7-7" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="bonding-node-label">EVM Verification<br><small style="opacity:0.6">State root + biometric</small></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 5: WHAT THIS MEANS FOR USERS ===== -->
+  <section class="section eco-banking" id="user-benefits">
+    <div class="container" style="position: relative;">
+      <svg class="fingerprint-watermark fingerprint-watermark-left" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M100 20c-44 0-80 36-80 80s36 80 80 80 80-36 80-80-36-80-80-80zm0 10c39 0 70 31 70 70s-31 70-70 70-70-31-70-70 31-70 70-70z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 40c-33 0-60 27-60 60s27 60 60 60 60-27 60-60-27-60-60-60zm0 10c28 0 50 22 50 50s-22 50-50 50-50-22-50-50 22-50 50-50z" stroke="#4FC3F7" stroke-width="1"/>
+  <path d="M100 60c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 10c17 0 30 13 30 30s-13 30-30 30-30-13-30-30 13-30 30-30z" stroke="#4FC3F7" stroke-width="1"/>
+  <circle cx="100" cy="100" r="12" stroke="#4FC3F7" stroke-width="1"/>
+</svg>
+      <p class="section-tag">User Impact</p>
+      <h2 class="section-title">What This Means for Users</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">Three guarantees that change everything about cross-chain identity.</p>
+
+      <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="pillar-card" data-aos>
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <circle cx="28" cy="20" r="10" stroke="#4FC3F7" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <circle cx="28" cy="20" r="5" stroke="#F97316" stroke-width="1.2"/>
+              <circle cx="28" cy="20" r="1.5" fill="#F97316"/>
+              <path d="M16 44c0-6.6 5.4-12 12-12s12 6.6 12 12" stroke="#4FC3F7" stroke-width="1.5"/>
+              <path d="M38 28l4-4m0 0l4 4m-4-4v8" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>One Identity, Every Chain</h3>
+          <p>Authenticate once with biometrics on Solana. That single identity propagates across Ethereum, Base, BSC, Avalanche, and any future EVM chain. No separate wallets, no separate keys, no separate onboarding.</p>
+          <ul class="pillar-features">
+            <li>Single biometric enrollment</li>
+            <li>Cross-chain identity propagation</li>
+            <li>Unified account management</li>
+          </ul>
+        </div>
+
+        <div class="pillar-card" data-aos>
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M28 8l18 9v11c0 12-8 22-18 25-10-3-18-13-18-25V17l18-9z" stroke="#4FC3F7" stroke-width="1.5"/>
+              <path d="M22 28l4 4 8-8" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>No Bridge Risk</h3>
+          <p>Traditional bridges use multi-sig validators — a honeypot for exploits. QOR uses trustless ZK-SNARK proofs. No validator collusion, no key theft, no $600M bridge hacks. Just mathematical certainty.</p>
+          <ul class="pillar-features">
+            <li>Zero multi-sig exposure</li>
+            <li>Cryptographic proof verification</li>
+            <li>No trusted third parties</li>
+          </ul>
+        </div>
+
+        <div class="pillar-card" data-aos>
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M12 36l10-10 10 10 12-12" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="36" r="4" stroke="#F97316" stroke-width="1.5"/>
+              <circle cx="44" cy="24" r="4" stroke="#F97316" stroke-width="1.5"/>
+              <path d="M8 46h40" stroke="#4FC3F7" stroke-width="1" opacity="0.3"/>
+            </svg>
+          </div>
+          <h3>Future-Proof</h3>
+          <p>It doesn't matter which EVM chain wins the scaling wars. QOR works on any chain that emerges dominant. The protocol survives and thrives regardless of which Layer 1 captures the market.</p>
+          <ul class="pillar-features">
+            <li>Chain-agnostic architecture</li>
+            <li>Protocol survives any L1 outcome</li>
+            <li>Adapts to market evolution</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 6: SUPPORTED CHAINS ===== -->
+  <section class="section eco-bonding" id="supported-chains">
+    <div class="container">
+      <p class="section-tag">Network Coverage</p>
+      <h2 class="section-title">Supported Chains</h2>
+      <p class="section-sub" style="margin: 0 auto 60px; text-align: center;">QOR's biometric authority extends from Solana to every major EVM network — and growing.</p>
+
+      <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="pillar-card" data-aos style="text-align: center;">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <circle cx="28" cy="28" r="20" stroke="#F97316" stroke-width="2"/>
+              <circle cx="28" cy="28" r="12" stroke="#F97316" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <circle cx="28" cy="28" r="4" fill="#F97316"/>
+            </svg>
+          </div>
+          <h3>Solana</h3>
+          <p style="opacity: 0.7; font-size: 0.85rem; font-weight: 600; color: #F97316;">MASTER CONTROLLER</p>
+          <p>The biometric core. SecP256R1 engine, native PDA accounts, 400ms finality. All cross-chain authority originates here.</p>
+        </div>
+
+        <div class="pillar-card" data-aos style="text-align: center;">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M28 8v16l14 8" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M28 8v16l-14 8" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M28 24v18" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M14 32l14 8 14-8" stroke="#4FC3F7" stroke-width="1" opacity="0.4"/>
+            </svg>
+          </div>
+          <h3>Ethereum</h3>
+          <p style="opacity: 0.5; font-size: 0.85rem; font-weight: 500;">SATELLITE</p>
+          <p>The original smart contract platform. Full EVM satellite wallet support with ZK-verified state proofs.</p>
+        </div>
+
+        <div class="pillar-card" data-aos style="text-align: center;">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <circle cx="28" cy="28" r="18" stroke="#4FC3F7" stroke-width="1.5"/>
+              <path d="M20 28h16" stroke="#4FC3F7" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="28" cy="28" r="8" stroke="#4FC3F7" stroke-width="1" stroke-dasharray="3 2"/>
+            </svg>
+          </div>
+          <h3>Base</h3>
+          <p style="opacity: 0.5; font-size: 0.85rem; font-weight: 500;">SATELLITE</p>
+          <p>Coinbase's L2 optimistic rollup. Low-cost EVM execution with QOR biometric authentication bridged via PLONK proofs.</p>
+        </div>
+
+        <div class="pillar-card" data-aos style="text-align: center;">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M28 10l16 10v16L28 46 12 36V20l16-10z" stroke="#F97316" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M28 20l8 5v10l-8 5-8-5V25l8-5z" stroke="#F97316" stroke-width="1" stroke-dasharray="3 2"/>
+            </svg>
+          </div>
+          <h3>BSC</h3>
+          <p style="opacity: 0.5; font-size: 0.85rem; font-weight: 500;">SATELLITE</p>
+          <p>Binance Smart Chain. High throughput EVM-compatible network with massive user base and DeFi liquidity.</p>
+        </div>
+
+        <div class="pillar-card" data-aos style="text-align: center;">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <path d="M28 10l16 10v16L28 46 12 36V20l16-10z" stroke="#4FC3F7" stroke-width="1.5" stroke-linejoin="round"/>
+              <circle cx="28" cy="28" r="6" stroke="#F97316" stroke-width="1.5"/>
+              <circle cx="28" cy="28" r="2" fill="#F97316"/>
+            </svg>
+          </div>
+          <h3>Avalanche</h3>
+          <p style="opacity: 0.5; font-size: 0.85rem; font-weight: 500;">SATELLITE</p>
+          <p>Sub-second finality with subnet architecture. EVM C-Chain satellite with institutional adoption and enterprise focus.</p>
+        </div>
+
+        <div class="pillar-card" data-aos style="text-align: center; border-style: dashed;">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 56 56" width="48" height="48" fill="none">
+              <circle cx="28" cy="28" r="18" stroke="#4FC3F7" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <path d="M22 28h12M28 22v12" stroke="#4FC3F7" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>More Coming</h3>
+          <p style="opacity: 0.5; font-size: 0.85rem; font-weight: 500;">EXPANDING</p>
+          <p>Any EVM-compatible chain can be added as a satellite. Monad, Sei, Polygon, Arbitrum, Optimism — the architecture is designed to grow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== SECTION 7: CTA ===== -->
+  <section class="section waitlist" id="waitlist">
+    <div class="container">
+      <div class="waitlist-content">
+        <h2 class="waitlist-title">One Identity.<br>Every Chain.</h2>
+        <p class="waitlist-sub">Be the first to experience sovereign cross-chain biometric finance. No bridges to trust. No chains to choose. Just you.</p>
+        <form class="waitlist-form" id="waitlistForm">
+          <input type="email" placeholder="Enter your email address" required>
+          <button type="submit">Get Early Access</button>
+        </form>
+        <p class="waitlist-note">We respect your privacy. No spam, ever.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="index.html" class="footer-logo">
+            <img src="assets/images/qor-logo.png" alt="QOR" class="footer-logo-img">
+            <span>QOR</span>
+          </a>
+          <p class="footer-tagline">The Biometric Standard.<br>Sovereign Financial Architecture for the Global Digital Economy.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Pages</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="ecosystem.html">Ecosystem</a></li>
+            <li><a href="tokenomics.html">Tokenomics</a></li>
+            <li><a href="security.html">Security</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="Whitepaper QOR.pdf" target="_blank">Whitepaper</a></li>
+            <li><a href="contact.html#faq">FAQ</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <div class="social-links">
+            <a href="https://x.com/QOR_network" aria-label="Twitter/X">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://t.me/QOR_Networks" aria-label="Telegram">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l.002.001-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15 4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 QOR. All rights reserved.</p>
+        <p class="footer-bottom-tagline">The Biometric Standard</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
