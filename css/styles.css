@@ -101,6 +101,18 @@ img {
   z-index: 1001;
 }
 
+.logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.footer-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 .logo-text {
   font-family: var(--font-heading);
   font-size: 1.5rem;
@@ -4535,4 +4547,23 @@ img {
   .tk-fw-ring {
     transform: scale(0.7);
   }
+}
+
+/* ===== FINGERPRINT WATERMARK ===== */
+.fingerprint-watermark {
+  position: absolute;
+  right: -60px;
+  bottom: -60px;
+  width: 300px;
+  height: 300px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fingerprint-watermark-left {
+  right: auto;
+  left: -60px;
+  bottom: auto;
+  top: -60px;
 }
