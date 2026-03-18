@@ -32,6 +32,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  overflow-x: hidden;
 }
 
 body {
@@ -99,6 +100,8 @@ img {
   align-items: center;
   gap: 10px;
   z-index: 1001;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .logo-img {
@@ -115,13 +118,11 @@ img {
 
 .logo-text {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: 2px;
-  background: var(--gradient-main);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: 1.5px;
+  color: #4FC3F7;
+  white-space: nowrap;
 }
 
 .nav-links {
@@ -1067,12 +1068,9 @@ img {
 
 .footer-logo span {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  background: var(--gradient-main);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #4FC3F7;
 }
 
 .footer-tagline {
@@ -1468,8 +1466,17 @@ img {
 }
 
 @media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   :root {
     --section-padding: 80px 0;
+  }
+
+  .nav-container {
+    max-width: 100%;
   }
 
   .nav-links,
