@@ -212,6 +212,15 @@ renderHeader('Newsletter', 'newsletter');
                                 <a href="campaign-edit.php?id=<?= $c['id'] ?>" class="btn-icon" title="Edit">
                                     <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
                                 </a>
+                                <?php if ($c['status'] !== 'sent'): ?>
+                                <form method="POST" action="api/email.php?action=send_campaign" style="display:inline" onsubmit="return confirm('Send this campaign to all active subscribers?')">
+                                    <?= csrfField() ?>
+                                    <input type="hidden" name="campaign_id" value="<?= $c['id'] ?>">
+                                    <button type="submit" class="btn-icon" title="Send Now">
+                                        <svg viewBox="0 0 20 20" fill="#22c55e" width="16" height="16"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+                                    </button>
+                                </form>
+                                <?php endif; ?>
                                 <form method="POST" action="api/newsletter.php?action=delete_campaign" style="display:inline" onsubmit="return confirm('Delete this campaign?')">
                                     <?= csrfField() ?>
                                     <input type="hidden" name="id" value="<?= $c['id'] ?>">

@@ -71,6 +71,7 @@ function formatAction(array $log): string {
         'update_campaign'       => 'updated a campaign',
         'delete_campaign'       => 'deleted a campaign',
         'send_campaign'         => 'sent a campaign',
+        'test_smtp'             => 'tested SMTP connection',
     ];
     return $actions[$log['action']] ?? $log['action'];
 }

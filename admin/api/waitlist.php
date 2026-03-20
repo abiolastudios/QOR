@@ -56,6 +56,13 @@ if ($action === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SERVER['HTTP_USER_AGENT'] ?? ''
         ]);
 
+        // Send welcome email (non-blocking — don't fail if email fails)
+        try {
+            require_once '../includes/mailer.php';
+            $mailer = new Mailer();
+            $mailer->send($email, 'Welcome to Core Chain', getWaitlistWelcomeEmail());
+        } catch (Exception $e) { /* silently fail */ }
+
         jsonResponse(['success' => true, 'message' => 'You\'re in! We\'ll be in touch.']);
     } catch (Exception $e) {
         jsonResponse(['success' => false, 'message' => 'Something went wrong. Please try again.'], 500);

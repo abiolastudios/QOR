@@ -55,6 +55,14 @@ if ($action === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $db->prepare('INSERT INTO subscribers (email, source, unsubscribe_token, ip_address, subscribed_at) VALUES (?, ?, ?, ?, NOW())');
         $stmt->execute([$email, $source, $token, $_SERVER['REMOTE_ADDR'] ?? '']);
 
+        // Send welcome email
+        try {
+            require_once '../includes/mailer.php';
+            $mailer = new Mailer();
+            $unsubUrl = ADMIN_URL . '/api/newsletter.php?action=unsubscribe&token=' . $token;
+            $mailer->send($email, 'Welcome to Core Chain Newsletter', getSubscriberWelcomeEmail($unsubUrl));
+        } catch (Exception $e) { /* silently fail */ }
+
         jsonResponse(['success' => true, 'message' => 'Subscribed! You\'ll receive our latest updates.']);
     } catch (Exception $e) {
         jsonResponse(['success' => false, 'message' => 'Something went wrong. Please try again.'], 500);
@@ -181,11 +189,11 @@ if ($action === 'delete_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('../newsletter.php?tab=campaigns');
 }
 
-// ===== ADMIN: Send Campaign (placeholder for Phase 6) =====
+// ===== ADMIN: Send Campaign =====
 if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Handled by api/email.php?action=send_campaign
     require_once '../includes/auth.php';
     startSecureSession(); requireRole('super_admin');
-    setFlash('error', 'Email sending will be available in Phase 6. Campaign saved as draft.');
     redirect('../newsletter.php?tab=campaigns');
 }
 

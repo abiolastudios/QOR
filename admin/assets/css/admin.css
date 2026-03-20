@@ -329,6 +329,21 @@ input, select, textarea, button { font-family: var(--font); }
 .stat-clickable:hover { border-color: var(--blue); }
 .stat-active { border-color: var(--blue); background: rgba(79,195,247,0.03); }
 
+/* ===== EMAIL ===== */
+.email-templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.email-tpl-card { padding: 20px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.email-tpl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.email-tpl-trigger { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.email-tpl-card h4 { font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 6px; }
+.email-tpl-card p { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+
+.flow-list { display: flex; flex-direction: column; gap: 16px; }
+.flow-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); flex-wrap: wrap; }
+.flow-trigger { font-size: 0.8rem; font-weight: 600; padding: 4px 12px; background: var(--orange-dim); color: var(--orange); border-radius: 100px; }
+.flow-arrow { color: var(--text-muted); font-size: 1.2rem; }
+.flow-action { font-size: 0.8rem; font-weight: 500; padding: 4px 12px; background: var(--blue-dim); color: var(--blue); border-radius: 100px; }
+.flow-future { opacity: 0.4; }
+
 /* ===== TABS ===== */
 .tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
 .tab { padding: 12px 24px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all var(--transition); }

@@ -94,7 +94,7 @@ renderHeader($pageTitle, 'newsletter');
                         </button>
                     </div>
 
-                    <p style="font-size:0.75rem; color:var(--text-muted); margin-top:12px; text-align:center;">Actual email sending available in Phase 6</p>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin-top:12px; text-align:center;">Save as draft, then send from the campaigns list.</p>
 
                     <?php if ($campaign): ?>
                     <div class="editor-meta">

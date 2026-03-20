@@ -62,6 +62,13 @@ if ($action === 'submit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SERVER['HTTP_USER_AGENT'] ?? ''
         ]);
 
+        // Send auto-reply
+        try {
+            require_once '../includes/mailer.php';
+            $mailer = new Mailer();
+            $mailer->send($email, 'We received your message — Core Chain', getContactAutoReplyEmail($name));
+        } catch (Exception $e) { /* silently fail */ }
+
         jsonResponse(['success' => true, 'message' => 'Message sent! We\'ll get back to you within 48 hours.']);
     } catch (Exception $e) {
         jsonResponse(['success' => false, 'message' => 'Something went wrong. Please try again.'], 500);
@@ -115,7 +122,17 @@ if ($action === 'reply' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $db->prepare('UPDATE contacts SET status = ?, reply_text = ?, replied_at = NOW() WHERE id = ?');
         $stmt->execute(['replied', $replyText, $id]);
 
-        // TODO: Phase 6 — send actual reply email via Hostinger SMTP
+        // Send reply email
+        try {
+            $stmtContact = $db->prepare('SELECT name, email FROM contacts WHERE id = ?');
+            $stmtContact->execute([$id]);
+            $contact = $stmtContact->fetch();
+            if ($contact) {
+                require_once '../includes/mailer.php';
+                $mailer = new Mailer();
+                $mailer->send($contact['email'], 'Reply from Core Chain', getContactReplyEmail($contact['name'], $replyText));
+            }
+        } catch (Exception $e) { /* silently fail */ }
 
         require_once '../includes/logger.php';
         logActivity($_SESSION['admin_id'], 'reply_contact', 'contact', $id);
