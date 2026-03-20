@@ -329,6 +329,12 @@ input, select, textarea, button { font-family: var(--font); }
 .stat-clickable:hover { border-color: var(--blue); }
 .stat-active { border-color: var(--blue); background: rgba(79,195,247,0.03); }
 
+/* ===== TABS ===== */
+.tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.tab { padding: 12px 24px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all var(--transition); }
+.tab:hover { color: var(--text); }
+.tab-active { color: var(--blue); border-bottom-color: var(--blue); }
+
 /* ===== WAITLIST ===== */
 .filter-input { padding: 7px 12px; font-size: 0.8rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); outline: none; min-width: 140px; }
 .filter-input:focus { border-color: var(--blue); }

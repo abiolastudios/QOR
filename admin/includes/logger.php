@@ -65,6 +65,12 @@ function formatAction(array $log): string {
         'update_post'           => 'updated a blog post',
         'delete_post'           => 'deleted a blog post',
         'feature_post'          => 'set a post as featured',
+        'export_subscribers'    => 'exported subscribers to CSV',
+        'delete_subscriber'     => 'removed a subscriber',
+        'create_campaign'       => 'created a campaign',
+        'update_campaign'       => 'updated a campaign',
+        'delete_campaign'       => 'deleted a campaign',
+        'send_campaign'         => 'sent a campaign',
     ];
     return $actions[$log['action']] ?? $log['action'];
 }

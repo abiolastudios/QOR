@@ -297,7 +297,37 @@ if (blogFilters.length > 0) {
 // ===== NEWSLETTER FORM =====
 const newsletterForm = document.getElementById('newsletterForm');
 if (newsletterForm) {
-  newsletterForm.addEventListener('submit', handleFormSubmit);
+  newsletterForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = newsletterForm.querySelector('input[type="email"]');
+    const button = newsletterForm.querySelector('button');
+    const originalText = button.textContent;
+    const email = input.value;
+
+    if (!email) return;
+
+    button.textContent = 'Subscribing...';
+    button.disabled = true;
+
+    fetch('admin/api/newsletter.php?action=subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'blog_newsletter' })
+    })
+    .then(res => res.json())
+    .then(data => {
+      button.textContent = data.message || 'Subscribed!';
+      button.style.opacity = '0.7';
+      input.value = '';
+      setTimeout(() => { button.textContent = originalText; button.style.opacity = '1'; button.disabled = false; }, 3000);
+    })
+    .catch(() => {
+      button.textContent = 'Subscribed!';
+      button.style.opacity = '0.7';
+      input.value = '';
+      setTimeout(() => { button.textContent = originalText; button.style.opacity = '1'; button.disabled = false; }, 3000);
+    });
+  });
 }
 
 
