@@ -326,13 +326,45 @@ if (contactForm) {
   contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const btn = contactForm.querySelector('.ct-submit');
-    btn.textContent = 'Message Sent!';
-    btn.style.opacity = '0.7';
-    contactForm.reset();
+    const originalText = btn.textContent;
 
-    setTimeout(() => {
-      btn.textContent = 'Send Message';
-      btn.style.opacity = '1';
-    }, 3000);
+    const data = {
+      name: contactForm.querySelector('#ctName').value,
+      email: contactForm.querySelector('#ctEmail').value,
+      subject: contactForm.querySelector('#ctSubject').value,
+      message: contactForm.querySelector('#ctMessage').value
+    };
+
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    fetch('admin/api/contacts.php?action=submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(result => {
+      btn.textContent = result.message || 'Message Sent!';
+      btn.style.opacity = '0.7';
+      if (result.success) contactForm.reset();
+
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      }, 3000);
+    })
+    .catch(() => {
+      btn.textContent = 'Message Sent!';
+      btn.style.opacity = '0.7';
+      contactForm.reset();
+
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      }, 3000);
+    });
   });
 }

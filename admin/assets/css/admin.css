@@ -231,6 +231,60 @@ input, select, textarea, button { font-family: var(--font); }
 .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 20px; border-top: 1px solid var(--border); }
 
+/* ===== MESSAGES ===== */
+.msg-back { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.msg-actions-top { display: flex; gap: 8px; }
+.msg-header-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+.msg-sender { display: flex; align-items: center; gap: 12px; }
+.msg-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--blue-dim); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
+.msg-sender h3 { font-family: var(--font-heading); font-size: 1.1rem; }
+.msg-email { font-size: 0.85rem; color: var(--blue); }
+.msg-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.msg-date { font-size: 0.8rem; color: var(--text-muted); }
+.msg-body { padding: 24px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.msg-body p { font-size: 0.95rem; line-height: 1.8; color: var(--text-secondary); white-space: pre-wrap; }
+.msg-reply-display { padding: 20px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 24px; }
+.msg-reply-display h4 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+.msg-reply-date { font-weight: 400; margin-left: 8px; }
+.msg-reply-display p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; white-space: pre-wrap; }
+.msg-reply-form { margin-bottom: 24px; }
+.msg-reply-form h4 { font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 12px; }
+.msg-details { font-size: 0.8rem; color: var(--text-muted); }
+.msg-row.msg-unread { background: rgba(79,195,247,0.02); }
+.msg-row.msg-unread td { font-weight: 600; }
+.msg-from { display: flex; flex-direction: column; }
+.msg-from strong { font-size: 0.85rem; }
+.msg-from span { font-size: 0.75rem; color: var(--text-muted); }
+.msg-preview { font-size: 0.8rem; color: var(--text-muted); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Status Dots */
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.status-dot-new { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+.status-dot-read { background: var(--blue); }
+.status-dot-replied { background: var(--green); }
+.status-dot-archived { background: var(--text-muted); }
+
+/* Status & Subject Badges */
+.status-badge { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-new { background: var(--orange-dim); color: var(--orange); }
+.status-read { background: var(--blue-dim); color: var(--blue); }
+.status-replied { background: var(--green-dim); color: var(--green); }
+.status-archived { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+
+.subject-badge { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
+.subject-general { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+.subject-partnership { background: var(--blue-dim); color: var(--blue); }
+.subject-institutional { background: var(--purple-dim); color: var(--purple); }
+.subject-node { background: var(--orange-dim); color: var(--orange); }
+.subject-media { background: var(--green-dim); color: var(--green); }
+.subject-careers { background: rgba(236,72,153,0.1); color: #ec4899; }
+.subject-bug { background: var(--red-dim); color: var(--red); }
+
+/* Clickable Stats */
+.stat-clickable { cursor: pointer; text-decoration: none; }
+.stat-clickable:hover { border-color: var(--blue); }
+.stat-active { border-color: var(--blue); background: rgba(79,195,247,0.03); }
+
 /* ===== WAITLIST ===== */
 .filter-input { padding: 7px 12px; font-size: 0.8rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); outline: none; min-width: 140px; }
 .filter-input:focus { border-color: var(--blue); }
