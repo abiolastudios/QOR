@@ -75,6 +75,7 @@ function formatAction(array $log): string {
         'update_seo'            => 'updated SEO settings',
         'generate_sitemap'      => 'generated sitemap.xml',
         'update_robots'         => 'updated robots.txt',
+        'update_chatbot'        => 'updated chatbot settings',
     ];
     return $actions[$log['action']] ?? $log['action'];
 }
