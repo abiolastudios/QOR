@@ -329,6 +329,13 @@ input, select, textarea, button { font-family: var(--font); }
 .stat-clickable:hover { border-color: var(--blue); }
 .stat-active { border-color: var(--blue); background: rgba(79,195,247,0.03); }
 
+/* ===== ANALYTICS ===== */
+.analytics-bar { margin-bottom: 12px; }
+.analytics-bar-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; color: var(--text-secondary); }
+.analytics-bar-track { height: 6px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; }
+.analytics-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+#trafficChart { width: 100%; max-height: 220px; }
+
 /* ===== CHATBOT ADMIN ===== */
 .chat-history { display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; }
 .chat-msg { max-width: 75%; }
