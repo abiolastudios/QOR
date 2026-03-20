@@ -329,6 +329,25 @@ input, select, textarea, button { font-family: var(--font); }
 .stat-clickable:hover { border-color: var(--blue); }
 .stat-active { border-color: var(--blue); background: rgba(79,195,247,0.03); }
 
+/* ===== SEO ===== */
+.seo-section-title { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; margin: 28px 0 12px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-secondary); }
+.char-count { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-left: 8px; }
+.badge-orange { font-size: 0.75rem; font-weight: 600; color: var(--orange); }
+
+/* Google Preview */
+.seo-preview-google { padding: 16px; background: #fff; border-radius: var(--radius-sm); }
+.seo-goog-title { font-size: 1.1rem; color: #1a0dab; font-family: Arial, sans-serif; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seo-goog-url { font-size: 0.8rem; color: #006621; font-family: Arial, sans-serif; margin-bottom: 4px; }
+.seo-goog-desc { font-size: 0.85rem; color: #545454; font-family: Arial, sans-serif; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Twitter Preview */
+.seo-preview-twitter { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.seo-tw-image { height: 100px; background: linear-gradient(135deg, rgba(79,195,247,0.1), rgba(249,115,22,0.05)); }
+.seo-tw-body { padding: 12px; }
+.seo-tw-domain { font-size: 0.7rem; color: var(--text-muted); text-transform: lowercase; }
+.seo-tw-title { font-size: 0.9rem; font-weight: 600; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seo-tw-desc { font-size: 0.8rem; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
 /* ===== EMAIL ===== */
 .email-templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .email-tpl-card { padding: 20px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); }
