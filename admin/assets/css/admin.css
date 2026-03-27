@@ -64,9 +64,9 @@ input, select, textarea, button { font-family: var(--font); }
 .setup-complete p { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.9rem; }
 
 /* ===== FORMS ===== */
-.form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 .form-group:last-child { margin-bottom: 0; }
-.form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; padding-top: 4px; }
+.form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
 .form-group input, .form-group select, .form-group textarea {
     padding: 12px 14px; font-size: 0.9rem; color: var(--text); background: var(--bg-input);
     border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; transition: border-color var(--transition);
