@@ -4,12 +4,32 @@ CREATE TABLE IF NOT EXISTS seo_pages (
     page_name VARCHAR(100) NOT NULL,
     meta_title VARCHAR(255) NULL,
     meta_description VARCHAR(500) NULL,
+    focus_keyword VARCHAR(100) NULL,
+    seo_score INT NOT NULL DEFAULT 0,
     og_title VARCHAR(255) NULL,
     og_description VARCHAR(500) NULL,
     og_image VARCHAR(500) NULL,
     canonical_url VARCHAR(500) NULL,
     no_index TINYINT(1) NOT NULL DEFAULT 0,
+    structured_data TEXT NULL,
     custom_head TEXT NULL,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_page (page_file)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Add columns if upgrading from older schema
+ALTER TABLE seo_pages ADD COLUMN IF NOT EXISTS focus_keyword VARCHAR(100) NULL AFTER meta_description;
+ALTER TABLE seo_pages ADD COLUMN IF NOT EXISTS seo_score INT NOT NULL DEFAULT 0 AFTER focus_keyword;
+ALTER TABLE seo_pages ADD COLUMN IF NOT EXISTS structured_data TEXT NULL AFTER no_index;
+
+CREATE TABLE IF NOT EXISTS seo_redirects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    source_url VARCHAR(500) NOT NULL,
+    target_url VARCHAR(500) NOT NULL,
+    status_code INT NOT NULL DEFAULT 301,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    hits INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY idx_source (source_url(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

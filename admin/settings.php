@@ -22,6 +22,28 @@ function s(string $key, string $fallback = ''): string {
 
 $tab = $_GET['tab'] ?? 'general';
 
+// --- Environment health check data ---
+$healthChecks = [];
+if ($tab === 'maintenance') {
+    // PHP extensions
+    $requiredExts = ['pdo', 'pdo_mysql', 'json', 'mbstring', 'openssl', 'curl', 'fileinfo', 'gd'];
+    foreach ($requiredExts as $ext) {
+        $healthChecks['ext_' . $ext] = extension_loaded($ext);
+    }
+    // Writable dirs
+    $writableDirs = [
+        'uploads/' => realpath(__DIR__ . '/../uploads') ?: __DIR__ . '/../uploads',
+        'site root' => realpath(__DIR__ . '/../') ?: __DIR__ . '/../',
+    ];
+    foreach ($writableDirs as $label => $path) {
+        $healthChecks['writable_' . $label] = is_writable($path);
+    }
+    // SSL
+    $healthChecks['ssl'] = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 0) == 443;
+    // PHP version
+    $healthChecks['php_version'] = version_compare(PHP_VERSION, '8.0.0', '>=');
+}
+
 renderHeader('Settings', 'settings');
 ?>
 
@@ -29,11 +51,13 @@ renderHeader('Settings', 'settings');
     <a href="settings.php?tab=general" class="tab <?= $tab === 'general' ? 'tab-active' : '' ?>">General</a>
     <a href="settings.php?tab=email" class="tab <?= $tab === 'email' ? 'tab-active' : '' ?>">Email / SMTP</a>
     <a href="settings.php?tab=security" class="tab <?= $tab === 'security' ? 'tab-active' : '' ?>">Security</a>
+    <a href="settings.php?tab=logins" class="tab <?= $tab === 'logins' ? 'tab-active' : '' ?>">Login History</a>
     <a href="settings.php?tab=media" class="tab <?= $tab === 'media' ? 'tab-active' : '' ?>">Media</a>
+    <a href="settings.php?tab=backup" class="tab <?= $tab === 'backup' ? 'tab-active' : '' ?>">Backup</a>
     <a href="settings.php?tab=maintenance" class="tab <?= $tab === 'maintenance' ? 'tab-active' : '' ?>">Maintenance</a>
 </div>
 
-<!-- General -->
+<!-- ==================== GENERAL ==================== -->
 <?php if ($tab === 'general'): ?>
 <form id="settingsForm" data-group="general">
     <div class="card">
@@ -85,7 +109,7 @@ renderHeader('Settings', 'settings');
 </form>
 <?php endif; ?>
 
-<!-- Email / SMTP -->
+<!-- ==================== EMAIL / SMTP ==================== -->
 <?php if ($tab === 'email'): ?>
 <form id="settingsForm" data-group="email">
     <div class="card">
@@ -153,7 +177,7 @@ renderHeader('Settings', 'settings');
 </form>
 <?php endif; ?>
 
-<!-- Security -->
+<!-- ==================== SECURITY ==================== -->
 <?php if ($tab === 'security'): ?>
 <form id="settingsForm" data-group="security">
     <div class="card">
@@ -163,7 +187,7 @@ renderHeader('Settings', 'settings');
                 <div class="form-group">
                     <label>Session Lifetime (seconds)</label>
                     <input type="number" name="session_lifetime" value="<?= sanitize(s('session_lifetime', (string)SESSION_LIFETIME)) ?>" min="300" max="86400">
-                    <span style="font-size:0.7rem;color:var(--text-muted)">Default: 1800 (30 minutes). Range: 300–86400</span>
+                    <span style="font-size:0.7rem;color:var(--text-muted)">Default: 1800 (30 minutes). Range: 300-86400</span>
                 </div>
                 <div class="form-group">
                     <label>Max Login Attempts</label>
@@ -185,19 +209,85 @@ renderHeader('Settings', 'settings');
     </div>
 
     <div class="card">
-        <div class="card-header"><h2>Activity Log</h2></div>
+        <div class="card-header"><h2>Password Policy</h2></div>
         <div class="card-body">
             <div class="settings-grid">
                 <div class="form-group">
-                    <label>Retention Period (days)</label>
-                    <input type="number" name="activity_log_retention" value="<?= sanitize(s('activity_log_retention', (string)ACTIVITY_LOG_RETENTION)) ?>" min="7" max="365">
-                    <span style="font-size:0.7rem;color:var(--text-muted)">Default: 90 days. Older entries are auto-purged</span>
+                    <label>Minimum Password Length</label>
+                    <input type="number" name="password_min_length" value="<?= sanitize(s('password_min_length', '8')) ?>" min="6" max="32">
                 </div>
                 <div class="form-group">
-                    <label>Purge Old Entries</label>
-                    <button type="button" class="btn btn-secondary btn-sm" id="purgeBtn">Purge Now</button>
-                    <span style="font-size:0.7rem;color:var(--text-muted)" id="purgeResult"></span>
+                    <label>Require Uppercase Letter</label>
+                    <select name="password_require_upper">
+                        <option value="1" <?= s('password_require_upper', '1') === '1' ? 'selected' : '' ?>>Yes</option>
+                        <option value="0" <?= s('password_require_upper', '1') === '0' ? 'selected' : '' ?>>No</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <label>Require Number</label>
+                    <select name="password_require_number">
+                        <option value="1" <?= s('password_require_number', '1') === '1' ? 'selected' : '' ?>>Yes</option>
+                        <option value="0" <?= s('password_require_number', '1') === '0' ? 'selected' : '' ?>>No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Require Special Character</label>
+                    <select name="password_require_special">
+                        <option value="0" <?= s('password_require_special', '0') === '0' ? 'selected' : '' ?>>No</option>
+                        <option value="1" <?= s('password_require_special', '0') === '1' ? 'selected' : '' ?>>Yes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2>Two-Factor Authentication</h2></div>
+        <div class="card-body">
+            <div class="settings-grid">
+                <div class="form-group">
+                    <label>Enforce 2FA for All Admins</label>
+                    <select name="enforce_2fa">
+                        <option value="0" <?= s('enforce_2fa', '0') === '0' ? 'selected' : '' ?>>Optional</option>
+                        <option value="1" <?= s('enforce_2fa', '0') === '1' ? 'selected' : '' ?>>Required for all admins</option>
+                    </select>
+                    <span style="font-size:0.7rem;color:var(--text-muted)">When required, admins must set up 2FA on next login</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2>IP Access Control</h2></div>
+        <div class="card-body">
+            <div class="settings-grid" style="grid-template-columns:1fr;">
+                <div class="form-group">
+                    <label>IP Whitelist (admin access only from these IPs)</label>
+                    <textarea name="ip_whitelist" rows="3" placeholder="One IP per line. Leave empty to allow all." style="font-family:monospace;font-size:0.8rem;"><?= htmlspecialchars(s('ip_whitelist', '')) ?></textarea>
+                    <span style="font-size:0.7rem;color:var(--text-muted)">Your current IP: <code><?= $_SERVER['REMOTE_ADDR'] ?? 'unknown' ?></code>. Leave empty to disable whitelist.</span>
+                </div>
+                <div class="form-group">
+                    <label>IP Blacklist (block these IPs)</label>
+                    <textarea name="ip_blacklist" rows="3" placeholder="One IP per line." style="font-family:monospace;font-size:0.8rem;"><?= htmlspecialchars(s('ip_blacklist', '')) ?></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2>Admin Actions</h2></div>
+        <div class="card-body">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                <button type="button" class="btn btn-danger btn-sm" id="forceResetBtn" onclick="forcePasswordReset()">Force All Password Reset</button>
+                <span style="font-size:0.8rem;color:var(--text-muted)" id="forceResetResult">Expire all admin passwords — everyone must change on next login</span>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px;">
+                <button type="button" class="btn btn-danger btn-sm" id="forceLogoutBtn" onclick="forceLogoutAll()">Force Logout All Sessions</button>
+                <span style="font-size:0.8rem;color:var(--text-muted)" id="forceLogoutResult">Invalidate all active admin sessions (everyone re-logs in)</span>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px;">
+                <button type="button" class="btn btn-secondary btn-sm" id="purgeBtn">Purge Activity Log</button>
+                <span style="font-size:0.8rem;color:var(--text-muted)" id="purgeResult">Remove entries older than retention period</span>
             </div>
         </div>
     </div>
@@ -209,7 +299,50 @@ renderHeader('Settings', 'settings');
 </form>
 <?php endif; ?>
 
-<!-- Media -->
+<!-- ==================== LOGIN HISTORY ==================== -->
+<?php if ($tab === 'logins'):
+    $loginLogs = $db->query("SELECT al.*, a.name as admin_name FROM activity_log al JOIN admins a ON al.admin_id = a.id WHERE al.action IN ('login', 'logout', 'login_failed') ORDER BY al.created_at DESC LIMIT 50")->fetchAll();
+?>
+<div class="card">
+    <div class="card-header"><h2>Recent Login Activity</h2></div>
+    <div class="card-body no-pad">
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Admin</th><th>Action</th><th>IP Address</th><th>Time</th></tr></thead>
+                <tbody>
+                    <?php if (empty($loginLogs)): ?>
+                    <tr><td colspan="4" class="empty-state">No login activity recorded.</td></tr>
+                    <?php else: ?>
+                    <?php foreach ($loginLogs as $ll): ?>
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar-sm"><?= strtoupper(substr($ll['admin_name'], 0, 1)) ?></div>
+                                <span><?= sanitize($ll['admin_name']) ?></span>
+                            </div>
+                        </td>
+                        <td>
+                            <?php if ($ll['action'] === 'login'): ?>
+                            <span class="badge-green">Login</span>
+                            <?php elseif ($ll['action'] === 'logout'): ?>
+                            <span class="badge-blue">Logout</span>
+                            <?php else: ?>
+                            <span class="badge-red">Failed</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><code style="font-size:0.8rem;"><?= sanitize($ll['ip_address']) ?></code></td>
+                        <td title="<?= $ll['created_at'] ?>"><?= timeAgo($ll['created_at']) ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- ==================== MEDIA ==================== -->
 <?php if ($tab === 'media'): ?>
 <form id="settingsForm" data-group="media">
     <div class="card">
@@ -283,7 +416,122 @@ renderHeader('Settings', 'settings');
 </form>
 <?php endif; ?>
 
-<!-- Maintenance -->
+<!-- ==================== BACKUP ==================== -->
+<?php if ($tab === 'backup'): ?>
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><h2>Database Backup</h2></div>
+    <div class="card-body">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px;">Download a full SQL dump of your database. This includes all tables, data, and structure.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="api/settings.php?action=backup_full" class="btn btn-primary">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                Download Full Backup (.sql)
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><h2>Restore from Backup</h2></div>
+    <div class="card-body">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px;">Upload a .sql file to restore your database. <strong style="color:var(--red);">This will overwrite existing data.</strong></p>
+        <form method="POST" action="api/settings.php?action=restore" enctype="multipart/form-data" onsubmit="return confirm('WARNING: This will overwrite your database. Are you absolutely sure?')">
+            <?= csrfField() ?>
+            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div class="form-group" style="flex:1;margin:0;">
+                    <label>SQL Backup File</label>
+                    <input type="file" name="backup_file" accept=".sql" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Restore Database</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><h2>Cache Management</h2></div>
+    <div class="card-body">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px;">Clear temporary files and cached data.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <button type="button" class="btn btn-secondary" onclick="clearCache()">Clear Session Cache</button>
+            <button type="button" class="btn btn-secondary" onclick="optimizeDb()">Optimize Database Tables</button>
+            <span id="cacheResult" style="font-size:0.8rem;"></span>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><h2>Table-by-Table Export</h2></div>
+    <div class="card-body no-pad">
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Table</th><th>Rows</th><th>Size</th><th>Actions</th></tr></thead>
+                <tbody>
+                    <?php
+                    $allTables = ['admins', 'activity_log', 'settings', 'waitlist', 'contacts', 'posts', 'subscribers', 'campaigns', 'email_templates', 'chat_sessions', 'chat_messages', 'chat_config', 'chat_knowledge', 'chat_unanswered', 'page_views', 'analytics_events', 'analytics_goals', 'analytics_conversions', 'seo_pages', 'seo_redirects', 'media'];
+                    foreach ($allTables as $tbl):
+                        try { $cnt = $db->query("SELECT COUNT(*) FROM `{$tbl}`")->fetchColumn(); } catch (Exception $e) { $cnt = '—'; }
+                        try {
+                            $sizeRow = $db->query("SELECT ROUND((data_length + index_length), 0) AS size FROM information_schema.tables WHERE table_schema = '" . DB_NAME . "' AND table_name = '{$tbl}'")->fetch();
+                            $tblSize = $sizeRow ? formatStorageSize((int)$sizeRow['size']) : '—';
+                        } catch (Exception $e) { $tblSize = '—'; }
+                    ?>
+                    <tr>
+                        <td><code><?= $tbl ?></code></td>
+                        <td><?= is_numeric($cnt) ? number_format($cnt) : $cnt ?></td>
+                        <td><?= $tblSize ?></td>
+                        <td>
+                            <?php if (is_numeric($cnt)): ?>
+                            <a href="api/settings.php?action=backup_table&table=<?= urlencode($tbl) ?>" class="btn btn-secondary btn-sm">Export</a>
+                            <?php else: ?>
+                            <span class="text-muted">N/A</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h2>Auto-Purge Settings</h2></div>
+    <div class="card-body">
+        <form id="settingsForm" data-group="purge">
+            <p class="settings-note">Automatically clean up old data to keep your database lean.</p>
+            <div class="settings-grid">
+                <div class="form-group">
+                    <label>Activity Log Retention (days)</label>
+                    <input type="number" name="activity_log_retention" value="<?= sanitize(s('activity_log_retention', (string)ACTIVITY_LOG_RETENTION)) ?>" min="7" max="365">
+                </div>
+                <div class="form-group">
+                    <label>Analytics Data Retention (days)</label>
+                    <input type="number" name="analytics_retention" value="<?= sanitize(s('analytics_retention', '180')) ?>" min="30" max="730">
+                    <span style="font-size:0.7rem;color:var(--text-muted)">Default: 180 days. Page views and events older than this are purged.</span>
+                </div>
+                <div class="form-group">
+                    <label>Closed Chat Sessions Retention (days)</label>
+                    <input type="number" name="chat_retention" value="<?= sanitize(s('chat_retention', '90')) ?>" min="7" max="365">
+                    <span style="font-size:0.7rem;color:var(--text-muted)">Default: 90 days. Only closed sessions are purged.</span>
+                </div>
+                <div class="form-group">
+                    <label>Unanswered Questions Retention (days)</label>
+                    <input type="number" name="unanswered_retention" value="<?= sanitize(s('unanswered_retention', '30')) ?>" min="7" max="180">
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;margin-top:12px;">
+                <button type="submit" class="btn btn-primary">Save Purge Settings</button>
+                <button type="button" class="btn btn-danger btn-sm" id="purgeAllBtn">Run Purge Now</button>
+                <span class="settings-saved" id="saveStatus"></span>
+                <span id="purgeAllResult" style="font-size:0.8rem;"></span>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- ==================== MAINTENANCE ==================== -->
 <?php if ($tab === 'maintenance'): ?>
 <form id="settingsForm" data-group="maintenance">
     <div class="card">
@@ -305,86 +553,115 @@ renderHeader('Settings', 'settings');
             </div>
         </div>
     </div>
-
-    <div class="card">
-        <div class="card-header"><h2>System Information</h2></div>
-        <div class="card-body">
-            <div class="info-list">
-                <div class="info-item">
-                    <span class="info-label">PHP Version</span>
-                    <span class="info-value"><code><?= phpversion() ?></code></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Server Software</span>
-                    <span class="info-value"><code><?= sanitize($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown') ?></code></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Database</span>
-                    <span class="info-value"><code><?= $db->getAttribute(PDO::ATTR_SERVER_VERSION) ?></code></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Database Name</span>
-                    <span class="info-value"><code><?= DB_NAME ?></code></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Server Time</span>
-                    <span class="info-value"><?= date('Y-m-d H:i:s T') ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">PHP Memory Limit</span>
-                    <span class="info-value"><code><?= ini_get('memory_limit') ?></code></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Max Execution Time</span>
-                    <span class="info-value"><code><?= ini_get('max_execution_time') ?>s</code></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Admin Panel Version</span>
-                    <span class="info-value badge-blue">Phase 11</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header"><h2>Database Tables</h2></div>
-        <div class="card-body no-pad">
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead><tr><th>Table</th><th>Rows</th><th>Size</th></tr></thead>
-                    <tbody>
-                        <?php
-                        $tables = ['admins', 'activity_log', 'waitlist', 'contacts', 'posts', 'subscribers', 'campaigns', 'chat_sessions', 'chat_messages', 'chatbot_config', 'page_views', 'seo_pages', 'media', 'settings'];
-                        foreach ($tables as $tbl):
-                            try {
-                                $cnt = $db->query("SELECT COUNT(*) FROM `{$tbl}`")->fetchColumn();
-                            } catch (Exception $e) {
-                                $cnt = '—';
-                            }
-                            try {
-                                $sizeRow = $db->query("SELECT ROUND((data_length + index_length), 0) AS size FROM information_schema.tables WHERE table_schema = '" . DB_NAME . "' AND table_name = '{$tbl}'")->fetch();
-                                $tblSize = $sizeRow ? formatStorageSize((int)$sizeRow['size']) : '—';
-                            } catch (Exception $e) {
-                                $tblSize = '—';
-                            }
-                        ?>
-                        <tr>
-                            <td><code><?= $tbl ?></code></td>
-                            <td><?= $cnt ?></td>
-                            <td><?= $tblSize ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <div class="settings-actions">
         <button type="submit" class="btn btn-primary">Save Maintenance Settings</button>
         <span class="settings-saved" id="saveStatus"></span>
     </div>
 </form>
+
+<!-- Environment Health Check -->
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><h2>Environment Health Check</h2></div>
+    <div class="card-body no-pad">
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Check</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>PHP Version (>= 8.0)</td>
+                        <td><?= $healthChecks['php_version'] ? '<span class="badge-green">PHP ' . PHP_VERSION . '</span>' : '<span class="badge-red">PHP ' . PHP_VERSION . ' (upgrade recommended)</span>' ?></td>
+                    </tr>
+                    <tr>
+                        <td>SSL / HTTPS</td>
+                        <td><?= $healthChecks['ssl'] ? '<span class="badge-green">Active</span>' : '<span class="badge-orange">Not detected (OK for local dev)</span>' ?></td>
+                    </tr>
+                    <?php foreach ($requiredExts as $ext): ?>
+                    <tr>
+                        <td>PHP Extension: <code><?= $ext ?></code></td>
+                        <td><?= $healthChecks['ext_' . $ext] ? '<span class="badge-green">Loaded</span>' : '<span class="badge-red">Missing</span>' ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php foreach ($writableDirs as $label => $path): ?>
+                    <tr>
+                        <td>Writable: <code><?= $label ?></code></td>
+                        <td><?= $healthChecks['writable_' . $label] ? '<span class="badge-green">Writable</span>' : '<span class="badge-red">Not writable</span>' ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><h2>System Information</h2></div>
+    <div class="card-body">
+        <div class="info-list">
+            <div class="info-item">
+                <span class="info-label">PHP Version</span>
+                <span class="info-value"><code><?= phpversion() ?></code></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Server Software</span>
+                <span class="info-value"><code><?= sanitize($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown') ?></code></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Database</span>
+                <span class="info-value"><code>MySQL <?= $db->getAttribute(PDO::ATTR_SERVER_VERSION) ?></code></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Database Name</span>
+                <span class="info-value"><code><?= DB_NAME ?></code></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Server Time</span>
+                <span class="info-value"><?= date('Y-m-d H:i:s T') ?></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">PHP Memory Limit</span>
+                <span class="info-value"><code><?= ini_get('memory_limit') ?></code></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Max Execution Time</span>
+                <span class="info-value"><code><?= ini_get('max_execution_time') ?>s</code></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Admin Panel Version</span>
+                <span class="info-value badge-blue">Phase 11</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Database Tables -->
+<div class="card" style="margin-top:20px;">
+    <div class="card-header"><h2>Database Tables</h2></div>
+    <div class="card-body no-pad">
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Table</th><th>Rows</th><th>Size</th></tr></thead>
+                <tbody>
+                    <?php
+                    $allTables = ['admins', 'activity_log', 'settings', 'waitlist', 'contacts', 'posts', 'subscribers', 'campaigns', 'email_templates', 'chat_sessions', 'chat_messages', 'chat_config', 'chat_knowledge', 'chat_unanswered', 'page_views', 'analytics_events', 'analytics_goals', 'analytics_conversions', 'seo_pages', 'seo_redirects', 'media'];
+                    foreach ($allTables as $tbl):
+                        try { $cnt = $db->query("SELECT COUNT(*) FROM `{$tbl}`")->fetchColumn(); } catch (Exception $e) { $cnt = '—'; }
+                        try {
+                            $sizeRow = $db->query("SELECT ROUND((data_length + index_length), 0) AS size FROM information_schema.tables WHERE table_schema = '" . DB_NAME . "' AND table_name = '{$tbl}'")->fetch();
+                            $tblSize = $sizeRow ? formatStorageSize((int)$sizeRow['size']) : '—';
+                        } catch (Exception $e) { $tblSize = '—'; }
+                    ?>
+                    <tr>
+                        <td><code><?= $tbl ?></code></td>
+                        <td><?= is_numeric($cnt) ? number_format($cnt) : $cnt ?></td>
+                        <td><?= $tblSize ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 <?php endif; ?>
 
 <script>
@@ -392,7 +669,7 @@ const API = 'api/settings.php';
 const csrf = '<?= generateCSRFToken() ?>';
 
 // Save settings
-document.getElementById('settingsForm').addEventListener('submit', (e) => {
+document.getElementById('settingsForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const form = e.target;
     const group = form.dataset.group;
@@ -400,7 +677,6 @@ document.getElementById('settingsForm').addEventListener('submit', (e) => {
     const formData = new FormData(form);
 
     for (const [key, value] of formData.entries()) {
-        // Skip password field if it's the masked placeholder
         if (key === 'smtp_pass' && value === '••••••••') continue;
         data[key] = value;
     }
@@ -437,10 +713,8 @@ if (testBtn) {
     testBtn.addEventListener('click', () => {
         const email = document.getElementById('testEmail').value;
         if (!email) { alert('Enter a test email address.'); return; }
-
         const result = document.getElementById('testResult');
         result.innerHTML = '<span style="color:var(--text-muted)">Sending test email...</span>';
-
         fetch(API + '?action=test_smtp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -448,15 +722,57 @@ if (testBtn) {
         })
         .then(r => r.json())
         .then(d => {
-            if (d.success) {
-                result.innerHTML = '<span style="color:var(--green)">Test email sent successfully!</span>';
-            } else {
-                result.innerHTML = '<span style="color:var(--red)">' + (d.error || 'Failed to send.') + '</span>';
-            }
+            result.innerHTML = d.success ?
+                '<span style="color:var(--green)">Test email sent successfully!</span>' :
+                '<span style="color:var(--red)">' + (d.error || 'Failed to send.') + '</span>';
         })
-        .catch(() => {
-            result.innerHTML = '<span style="color:var(--red)">Connection error.</span>';
-        });
+        .catch(() => { result.innerHTML = '<span style="color:var(--red)">Connection error.</span>'; });
+    });
+}
+
+// Force logout all
+function forceLogoutAll() {
+    if (!confirm('Force logout all admin sessions? Everyone (including you) will need to log back in.')) return;
+    const result = document.getElementById('forceLogoutResult');
+    fetch(API + '?action=force_logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csrf_token: csrf })
+    })
+    .then(r => r.json())
+    .then(d => {
+        result.textContent = d.success ? 'All sessions invalidated. Redirecting...' : (d.error || 'Failed.');
+        result.style.color = d.success ? 'var(--green)' : 'var(--red)';
+        if (d.success) setTimeout(() => window.location = 'index.php', 1500);
+    });
+}
+
+// Clear cache
+function clearCache() {
+    const result = document.getElementById('cacheResult');
+    result.textContent = 'Clearing...';
+    result.style.color = 'var(--text-muted)';
+    fetch(API + '?action=clear_cache', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csrf_token: csrf })
+    }).then(r => r.json()).then(d => {
+        result.textContent = d.success ? 'Cache cleared.' : (d.error || 'Failed.');
+        result.style.color = d.success ? 'var(--green)' : 'var(--red)';
+    });
+}
+
+function optimizeDb() {
+    const result = document.getElementById('cacheResult');
+    result.textContent = 'Optimizing...';
+    result.style.color = 'var(--text-muted)';
+    fetch(API + '?action=optimize_db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csrf_token: csrf })
+    }).then(r => r.json()).then(d => {
+        result.textContent = d.success ? d.message : (d.error || 'Failed.');
+        result.style.color = d.success ? 'var(--green)' : 'var(--red)';
     });
 }
 
@@ -466,7 +782,6 @@ if (purgeBtn) {
     purgeBtn.addEventListener('click', () => {
         if (!confirm('Purge activity log entries older than the retention period?')) return;
         const result = document.getElementById('purgeResult');
-
         fetch(API + '?action=purge_activity', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -474,8 +789,45 @@ if (purgeBtn) {
         })
         .then(r => r.json())
         .then(d => {
+            result.textContent = d.success ? d.deleted + ' entries purged.' : (d.error || 'Failed.');
+            result.style.color = d.success ? 'var(--green)' : 'var(--red)';
+        });
+    });
+}
+
+// Force password reset
+function forcePasswordReset() {
+    if (!confirm('This will force ALL admins (including you) to change their password on next login. Continue?')) return;
+    const result = document.getElementById('forceResetResult');
+    fetch(API + '?action=force_password_reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csrf_token: csrf })
+    })
+    .then(r => r.json())
+    .then(d => {
+        result.textContent = d.success ? d.count + ' admin(s) flagged for password reset.' : (d.error || 'Failed.');
+        result.style.color = d.success ? 'var(--green)' : 'var(--red)';
+    });
+}
+
+// Purge all (backup tab)
+const purgeAllBtn = document.getElementById('purgeAllBtn');
+if (purgeAllBtn) {
+    purgeAllBtn.addEventListener('click', () => {
+        if (!confirm('Run auto-purge now? This will delete old data based on retention settings.')) return;
+        const result = document.getElementById('purgeAllResult');
+        result.textContent = 'Purging...';
+        result.style.color = 'var(--text-muted)';
+        fetch(API + '?action=purge_all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ csrf_token: csrf })
+        })
+        .then(r => r.json())
+        .then(d => {
             if (d.success) {
-                result.textContent = d.deleted + ' entries purged.';
+                result.textContent = 'Purged: ' + d.summary;
                 result.style.color = 'var(--green)';
             } else {
                 result.textContent = d.error || 'Failed.';
