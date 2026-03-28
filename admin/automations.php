@@ -116,7 +116,7 @@ if ($editAuto) {
     $queueStats = $queueStatsArr;
 }
 
-renderHeader('Automations', 'newsletter');
+renderHeader('Automations', 'automations');
 ?>
 
 <div class="msg-back">
