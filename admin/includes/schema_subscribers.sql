@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS subscribers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(150) NULL,
     status ENUM('active','unsubscribed') NOT NULL DEFAULT 'active',
     source VARCHAR(100) NOT NULL DEFAULT 'blog',
     unsubscribe_token VARCHAR(64) NOT NULL,
@@ -16,7 +17,9 @@ CREATE TABLE IF NOT EXISTS campaigns (
     id INT AUTO_INCREMENT PRIMARY KEY,
     subject VARCHAR(255) NOT NULL,
     content LONGTEXT NOT NULL,
-    status ENUM('draft','scheduled','sent') NOT NULL DEFAULT 'draft',
+    status ENUM('draft','scheduled','sending','sent') NOT NULL DEFAULT 'draft',
+    audience_type ENUM('all','segment','tag') NOT NULL DEFAULT 'all',
+    audience_id INT NULL,
     scheduled_at DATETIME NULL,
     sent_at DATETIME NULL,
     sent_count INT NOT NULL DEFAULT 0,
@@ -40,4 +43,32 @@ CREATE TABLE IF NOT EXISTS campaign_logs (
     FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
     FOREIGN KEY (subscriber_id) REFERENCES subscribers(id) ON DELETE CASCADE,
     INDEX idx_campaign (campaign_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    color VARCHAR(7) NOT NULL DEFAULT '#4FC3F7',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS subscriber_tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subscriber_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY idx_sub_tag (subscriber_id, tag_id),
+    FOREIGN KEY (subscriber_id) REFERENCES subscribers(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS segments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(500) NULL,
+    rules JSON NOT NULL,
+    subscriber_count INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

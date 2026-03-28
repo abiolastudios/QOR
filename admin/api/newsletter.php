@@ -146,6 +146,10 @@ if ($action === 'save_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = $_POST['content'] ?? '';
     $status = sanitize($_POST['status'] ?? 'draft');
     $scheduledAt = $_POST['scheduled_at'] ?? null;
+    $audienceType = in_array($_POST['audience_type'] ?? 'all', ['all', 'segment', 'tag']) ? $_POST['audience_type'] : 'all';
+    $audienceId = null;
+    if ($audienceType === 'segment') $audienceId = (int)($_POST['audience_segment_id'] ?? 0) ?: null;
+    if ($audienceType === 'tag') $audienceId = (int)($_POST['audience_tag_id'] ?? 0) ?: null;
 
     if (strlen($subject) < 3) { setFlash('error', 'Subject must be at least 3 characters.'); redirect('../campaign-edit.php' . ($id ? '?id=' . $id : '')); }
 
@@ -156,14 +160,14 @@ if ($action === 'save_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $admin = getCurrentAdmin();
 
     if ($id) {
-        $stmt = $db->prepare('UPDATE campaigns SET subject=?, content=?, status=?, scheduled_at=? WHERE id=?');
-        $stmt->execute([$subject, $content, $status, $scheduledAt, $id]);
+        $stmt = $db->prepare('UPDATE campaigns SET subject=?, content=?, status=?, scheduled_at=?, audience_type=?, audience_id=? WHERE id=?');
+        $stmt->execute([$subject, $content, $status, $scheduledAt, $audienceType, $audienceId, $id]);
         require_once '../includes/logger.php';
         logActivity($admin['id'], 'update_campaign', 'campaign', $id, ['subject' => $subject]);
         setFlash('success', 'Campaign updated.');
     } else {
-        $stmt = $db->prepare('INSERT INTO campaigns (subject, content, status, scheduled_at, author_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())');
-        $stmt->execute([$subject, $content, $status, $scheduledAt, $admin['id']]);
+        $stmt = $db->prepare('INSERT INTO campaigns (subject, content, status, scheduled_at, audience_type, audience_id, author_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())');
+        $stmt->execute([$subject, $content, $status, $scheduledAt, $audienceType, $audienceId, $admin['id']]);
         require_once '../includes/logger.php';
         logActivity($admin['id'], 'create_campaign', 'campaign', $db->lastInsertId(), ['subject' => $subject]);
         setFlash('success', 'Campaign created.');
@@ -234,6 +238,120 @@ if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once '../includes/auth.php';
     startSecureSession(); requireRole('super_admin');
     redirect('../newsletter.php?tab=campaigns');
+}
+
+// ===== ADMIN: Bulk Tag =====
+if ($action === 'bulk_tag' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once '../includes/auth.php';
+    require_once '../includes/logger.php';
+    startSecureSession(); requireLogin();
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!validateCSRF($input['csrf_token'] ?? '')) { jsonResponse(['success' => false, 'error' => 'Invalid CSRF.'], 403); }
+
+    $mode = $input['mode'] ?? 'add';
+    $tagId = (int)($input['tag_id'] ?? 0);
+    $subIds = $input['subscriber_ids'] ?? [];
+
+    if (!$tagId || empty($subIds)) { jsonResponse(['success' => false, 'error' => 'Missing tag or subscribers.'], 400); }
+
+    $db = getDB();
+    $affected = 0;
+
+    foreach ($subIds as $subId) {
+        $subId = (int)$subId;
+        if ($mode === 'add') {
+            try {
+                $db->prepare('INSERT INTO subscriber_tags (subscriber_id, tag_id) VALUES (?, ?)')->execute([$subId, $tagId]);
+                $affected++;
+            } catch (Exception $e) {} // already tagged
+        } else {
+            $stmt = $db->prepare('DELETE FROM subscriber_tags WHERE subscriber_id = ? AND tag_id = ?');
+            $stmt->execute([$subId, $tagId]);
+            $affected += $stmt->rowCount();
+        }
+    }
+
+    $verb = $mode === 'add' ? 'tagged' : 'untagged';
+    logActivity($_SESSION['admin_id'], "bulk_{$verb}", 'newsletter', null, ['tag_id' => $tagId, 'count' => $affected]);
+    jsonResponse(['success' => true, 'message' => "{$affected} subscriber(s) {$verb}."]);
+}
+
+// ===== ADMIN: Preview Segment =====
+if ($action === 'preview_segment' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once '../includes/auth.php';
+    startSecureSession(); requireLogin();
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!validateCSRF($input['csrf_token'] ?? '')) { jsonResponse(['success' => false, 'error' => 'Invalid CSRF.'], 403); }
+
+    $rules = $input['rules'] ?? [];
+    $db = getDB();
+
+    $count = countSegmentSubscribers($db, $rules);
+    jsonResponse(['success' => true, 'count' => $count]);
+}
+
+/**
+ * Count subscribers matching segment rules
+ */
+function countSegmentSubscribers(PDO $db, array $rules): int {
+    return count(getSegmentSubscriberIds($db, $rules));
+}
+
+/**
+ * Get subscriber IDs matching segment rules
+ */
+function getSegmentSubscriberIds(PDO $db, array $rules): array {
+    $match = $rules['match'] ?? 'all';
+    $conditions = $rules['conditions'] ?? [];
+
+    if (empty($conditions)) {
+        return $db->query("SELECT id FROM subscribers WHERE status = 'active'")->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    $where = [];
+    $params = [];
+    $joins = [];
+    $tagJoinIdx = 0;
+
+    foreach ($conditions as $c) {
+        $field = $c['field'] ?? '';
+        $op = $c['operator'] ?? '';
+        $val = $c['value'] ?? '';
+
+        if ($field === 'status') {
+            if ($op === 'equals') { $where[] = 's.status = ?'; $params[] = $val; }
+            elseif ($op === 'not_equals') { $where[] = 's.status != ?'; $params[] = $val; }
+        } elseif ($field === 'source') {
+            if ($op === 'equals') { $where[] = 's.source = ?'; $params[] = $val; }
+            elseif ($op === 'not_equals') { $where[] = 's.source != ?'; $params[] = $val; }
+            elseif ($op === 'contains') { $where[] = 's.source LIKE ?'; $params[] = "%{$val}%"; }
+        } elseif ($field === 'email') {
+            if ($op === 'contains') { $where[] = 's.email LIKE ?'; $params[] = "%{$val}%"; }
+            elseif ($op === 'not_contains') { $where[] = 's.email NOT LIKE ?'; $params[] = "%{$val}%"; }
+        } elseif ($field === 'subscribed_at') {
+            if ($op === 'after') { $where[] = 's.subscribed_at >= ?'; $params[] = $val; }
+            elseif ($op === 'before') { $where[] = 's.subscribed_at <= ?'; $params[] = $val . ' 23:59:59'; }
+        } elseif ($field === 'tag') {
+            $alias = 'stj' . $tagJoinIdx++;
+            if ($op === 'has') {
+                $joins[] = "JOIN subscriber_tags {$alias} ON s.id = {$alias}.subscriber_id AND {$alias}.tag_id = " . (int)$val;
+            } elseif ($op === 'not_has') {
+                $joins[] = "LEFT JOIN subscriber_tags {$alias} ON s.id = {$alias}.subscriber_id AND {$alias}.tag_id = " . (int)$val;
+                $where[] = "{$alias}.id IS NULL";
+            }
+        }
+    }
+
+    $joiner = $match === 'any' ? ' OR ' : ' AND ';
+    $whereSQL = $where ? 'WHERE ' . implode($joiner, $where) : '';
+    $joinSQL = implode(' ', $joins);
+
+    $sql = "SELECT DISTINCT s.id FROM subscribers s {$joinSQL} {$whereSQL}";
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 jsonResponse(['error' => 'Invalid action.'], 400);

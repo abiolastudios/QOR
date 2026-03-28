@@ -18,6 +18,12 @@ if ($id) {
 }
 
 $activeCount = $db->query("SELECT COUNT(*) FROM subscribers WHERE status = 'active'")->fetchColumn();
+
+// Load tags and segments for audience selector
+$allTags = $db->query('SELECT t.*, (SELECT COUNT(*) FROM subscriber_tags WHERE tag_id = t.id) as sub_count FROM tags t ORDER BY t.name')->fetchAll();
+$allSegments = [];
+try { $allSegments = $db->query('SELECT * FROM segments ORDER BY name')->fetchAll(); } catch (Exception $e) {}
+
 $pageTitle = $campaign ? 'Edit Campaign' : 'New Campaign';
 
 renderHeader($pageTitle, 'newsletter');
@@ -67,14 +73,47 @@ renderHeader($pageTitle, 'newsletter');
         </div>
 
         <div class="editor-sidebar">
+            <!-- Audience -->
+            <div class="card">
+                <div class="card-header"><h2>Audience</h2></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Send To</label>
+                        <select name="audience_type" id="audienceType" onchange="updateAudienceOptions()">
+                            <option value="all" <?= ($campaign['audience_type'] ?? 'all') === 'all' ? 'selected' : '' ?>>All Active Subscribers (<?= number_format($activeCount) ?>)</option>
+                            <?php if (!empty($allSegments)): ?>
+                            <option value="segment" <?= ($campaign['audience_type'] ?? '') === 'segment' ? 'selected' : '' ?>>Segment</option>
+                            <?php endif; ?>
+                            <?php if (!empty($allTags)): ?>
+                            <option value="tag" <?= ($campaign['audience_type'] ?? '') === 'tag' ? 'selected' : '' ?>>Tag</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="segmentSelect" style="display:<?= ($campaign['audience_type'] ?? '') === 'segment' ? 'flex' : 'none' ?>;">
+                        <label>Select Segment</label>
+                        <select name="audience_segment_id">
+                            <?php foreach ($allSegments as $seg): ?>
+                            <option value="<?= $seg['id'] ?>" <?= ($campaign['audience_type'] ?? '') === 'segment' && ($campaign['audience_id'] ?? 0) == $seg['id'] ? 'selected' : '' ?>><?= sanitize($seg['name']) ?> (~<?= $seg['subscriber_count'] ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="tagSelect" style="display:<?= ($campaign['audience_type'] ?? '') === 'tag' ? 'flex' : 'none' ?>;">
+                        <label>Select Tag</label>
+                        <select name="audience_tag_id">
+                            <?php foreach ($allTags as $t): ?>
+                            <option value="<?= $t['id'] ?>" <?= ($campaign['audience_type'] ?? '') === 'tag' && ($campaign['audience_id'] ?? 0) == $t['id'] ? 'selected' : '' ?>><?= sanitize($t['name']) ?> (<?= $t['sub_count'] ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Settings -->
             <div class="card">
                 <div class="card-header"><h2>Send</h2></div>
                 <div class="card-body">
-                    <div class="info-item" style="border:none; padding:0 0 16px">
-                        <span class="info-label">Recipients</span>
-                        <span class="info-value" style="color:var(--blue)"><?= number_format($activeCount) ?> active</span>
-                    </div>
-
                     <div class="form-group">
                         <label>Status</label>
                         <select name="status" id="statusSelect">
@@ -83,7 +122,7 @@ renderHeader($pageTitle, 'newsletter');
                         </select>
                     </div>
 
-                    <div class="form-group" id="scheduleGroup" style="display:<?= ($campaign['status'] ?? '') === 'scheduled' ? 'block' : 'none' ?>">
+                    <div class="form-group" id="scheduleGroup" style="display:<?= ($campaign['status'] ?? '') === 'scheduled' ? 'flex' : 'none' ?>">
                         <label>Schedule Date</label>
                         <input type="datetime-local" name="scheduled_at" value="<?= $campaign['scheduled_at'] ? date('Y-m-d\TH:i', strtotime($campaign['scheduled_at'])) : '' ?>">
                     </div>
@@ -99,7 +138,7 @@ renderHeader($pageTitle, 'newsletter');
                     <?php if ($campaign): ?>
                     <div class="editor-meta">
                         <span>Created: <?= date('M j, Y', strtotime($campaign['created_at'])) ?></span>
-                        <?php if ($campaign['sent_at']): ?>
+                        <?php if ($campaign['sent_at'] ?? null): ?>
                         <span>Sent: <?= date('M j, Y g:i A', strtotime($campaign['sent_at'])) ?></span>
                         <span>Sent to: <?= number_format($campaign['sent_count']) ?></span>
                         <span>Opens: <?= number_format($campaign['open_count']) ?></span>
@@ -114,8 +153,14 @@ renderHeader($pageTitle, 'newsletter');
 
 <script>
 document.getElementById('statusSelect').addEventListener('change', function() {
-    document.getElementById('scheduleGroup').style.display = this.value === 'scheduled' ? 'block' : 'none';
+    document.getElementById('scheduleGroup').style.display = this.value === 'scheduled' ? 'flex' : 'none';
 });
+
+function updateAudienceOptions() {
+    const type = document.getElementById('audienceType').value;
+    document.getElementById('segmentSelect').style.display = type === 'segment' ? 'flex' : 'none';
+    document.getElementById('tagSelect').style.display = type === 'tag' ? 'flex' : 'none';
+}
 
 function execCmd(cmd, value) { document.execCommand(cmd, false, value || null); document.getElementById('editorContent').focus(); }
 function insertLink() { const url = prompt('Enter URL:'); if (url) document.execCommand('createLink', false, url); }

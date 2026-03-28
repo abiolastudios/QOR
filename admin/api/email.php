@@ -159,8 +159,50 @@ if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$campaign) { setFlash('error', 'Campaign not found.'); redirect('../newsletter.php?tab=campaigns'); }
     if ($campaign['status'] === 'sent') { setFlash('error', 'Campaign already sent.'); redirect('../newsletter.php?tab=campaigns'); }
 
-    $subscribers = $db->query("SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'")->fetchAll();
-    if (empty($subscribers)) { setFlash('error', 'No active subscribers.'); redirect('../newsletter.php?tab=campaigns'); }
+    // Get target subscribers based on audience type
+    $audienceType = $campaign['audience_type'] ?? 'all';
+    $audienceId = $campaign['audience_id'] ?? null;
+
+    if ($audienceType === 'segment' && $audienceId) {
+        // Load segment rules and query matching subscribers
+        $segStmt = $db->prepare('SELECT rules FROM segments WHERE id = ?');
+        $segStmt->execute([$audienceId]);
+        $segRules = json_decode($segStmt->fetchColumn() ?: '{}', true);
+        require_once '../includes/helpers.php';
+        require_once 'newsletter.php'; // for getSegmentSubscriberIds — use inline instead
+        // Inline segment query
+        $subIds = [];
+        if (!empty($segRules['conditions'])) {
+            // Build query from rules
+            $match = $segRules['match'] ?? 'all';
+            $conditions = $segRules['conditions'];
+            $w = []; $p = []; $j = []; $ti = 0;
+            foreach ($conditions as $cond) {
+                $f = $cond['field']; $o = $cond['operator']; $v = $cond['value'];
+                if ($f === 'status') { $w[] = $o === 'equals' ? 's.status = ?' : 's.status != ?'; $p[] = $v; }
+                elseif ($f === 'source') { if ($o === 'contains') { $w[] = 's.source LIKE ?'; $p[] = "%{$v}%"; } else { $w[] = $o === 'equals' ? 's.source = ?' : 's.source != ?'; $p[] = $v; } }
+                elseif ($f === 'email') { $w[] = $o === 'contains' ? 's.email LIKE ?' : 's.email NOT LIKE ?'; $p[] = "%{$v}%"; }
+                elseif ($f === 'subscribed_at') { $w[] = $o === 'after' ? 's.subscribed_at >= ?' : 's.subscribed_at <= ?'; $p[] = $o === 'before' ? $v . ' 23:59:59' : $v; }
+                elseif ($f === 'tag') { $a = 'stj' . $ti++; if ($o === 'has') { $j[] = "JOIN subscriber_tags {$a} ON s.id = {$a}.subscriber_id AND {$a}.tag_id = " . (int)$v; } else { $j[] = "LEFT JOIN subscriber_tags {$a} ON s.id = {$a}.subscriber_id AND {$a}.tag_id = " . (int)$v; $w[] = "{$a}.id IS NULL"; } }
+            }
+            $joiner = $match === 'any' ? ' OR ' : ' AND ';
+            $wSQL = $w ? 'AND (' . implode($joiner, $w) . ')' : '';
+            $jSQL = implode(' ', $j);
+            $stmt2 = $db->prepare("SELECT DISTINCT s.id, s.email, s.unsubscribe_token FROM subscribers s {$jSQL} WHERE s.status = 'active' {$wSQL}");
+            $stmt2->execute($p);
+            $subscribers = $stmt2->fetchAll();
+        } else {
+            $subscribers = $db->query("SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'")->fetchAll();
+        }
+    } elseif ($audienceType === 'tag' && $audienceId) {
+        $subscribers = $db->prepare("SELECT DISTINCT s.id, s.email, s.unsubscribe_token FROM subscribers s JOIN subscriber_tags st ON s.id = st.subscriber_id WHERE s.status = 'active' AND st.tag_id = ?");
+        $subscribers->execute([$audienceId]);
+        $subscribers = $subscribers->fetchAll();
+    } else {
+        $subscribers = $db->query("SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'")->fetchAll();
+    }
+
+    if (empty($subscribers)) { setFlash('error', 'No subscribers match this audience.'); redirect('../newsletter.php?tab=campaigns'); }
 
     $template = getEmailWrapper($campaign['content'], '{{unsubscribe_url}}');
     $mailer = new Mailer();
