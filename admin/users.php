@@ -376,43 +376,26 @@ renderHeader('Admin Users', 'users');
                         </td>
                         <td><?= $user['last_login'] ? timeAgo($user['last_login']) : '<span class="text-muted">Never</span>' ?></td>
                         <td>
-                            <div class="table-actions" style="display:flex;gap:4px;">
-                                <?php if ($user['id'] !== $admin['id']): ?>
-                                <button class="btn btn-secondary btn-sm" onclick="openEditModal(<?= htmlspecialchars(json_encode($user)) ?>)">Edit</button>
-                                <form method="POST" style="display:inline">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="action" value="toggle_status">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <button type="submit" class="btn btn-<?= $user['is_active'] ? 'danger' : 'primary' ?> btn-sm" title="<?= $user['is_active'] ? 'Deactivate' : 'Activate' ?>"><?= $user['is_active'] ? 'Disable' : 'Enable' ?></button>
-                                </form>
-                                <button class="btn btn-secondary btn-sm" onclick="openResetModal(<?= $user['id'] ?>, '<?= sanitize($user['name']) ?>')">Reset PW</button>
-                                <form method="POST" style="display:inline" onsubmit="return confirm('Force <?= sanitize($user['name']) ?> to change password on next login?')">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="action" value="force_reset_user">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <button type="submit" class="btn btn-secondary btn-sm" title="Force password change on next login">Force Reset</button>
-                                </form>
-                                <a href="activity.php?admin=<?= $user['id'] ?>" class="btn btn-ghost btn-sm" title="View activity">
-                                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                                </a>
-                                <?php if ($user['totp_enabled']): ?>
-                                <form method="POST" style="display:inline" onsubmit="return confirm('Reset 2FA for <?= sanitize($user['name']) ?>?')">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="action" value="reset_2fa">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <button type="submit" class="btn btn-secondary btn-sm">Reset 2FA</button>
-                                </form>
-                                <?php endif; ?>
-                                <form method="POST" style="display:inline" onsubmit="return confirm('Permanently delete <?= sanitize($user['name']) ?>? This cannot be undone.')">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="action" value="delete_admin">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">Del</button>
-                                </form>
-                                <?php else: ?>
-                                <span style="font-size:0.75rem;color:var(--text-muted);">Current user</span>
-                                <?php endif; ?>
+                            <?php if ($user['id'] !== $admin['id']): ?>
+                            <div class="action-dropdown">
+                                <button class="btn btn-secondary btn-sm" onclick="this.nextElementSibling.classList.toggle('show')">Actions &#9662;</button>
+                                <div class="dropdown-menu">
+                                    <button class="dropdown-item" onclick="this.closest('.dropdown-menu').classList.remove('show');openEditModal(<?= htmlspecialchars(json_encode($user)) ?>)">Edit Details</button>
+                                    <button class="dropdown-item" onclick="this.closest('.dropdown-menu').classList.remove('show');openResetModal(<?= $user['id'] ?>, '<?= sanitize($user['name']) ?>')">Reset Password</button>
+                                    <a href="activity.php?admin=<?= $user['id'] ?>" class="dropdown-item">View Activity</a>
+                                    <div class="dropdown-divider"></div>
+                                    <form method="POST"><input type="hidden" name="<?= CSRF_TOKEN_NAME ?>" value="<?= generateCSRFToken() ?>"><input type="hidden" name="action" value="toggle_status"><input type="hidden" name="user_id" value="<?= $user['id'] ?>"><button type="submit" class="dropdown-item"><?= $user['is_active'] ? 'Deactivate' : 'Activate' ?> Account</button></form>
+                                    <form method="POST" onsubmit="return confirm('Force password change on next login?')"><input type="hidden" name="<?= CSRF_TOKEN_NAME ?>" value="<?= generateCSRFToken() ?>"><input type="hidden" name="action" value="force_reset_user"><input type="hidden" name="user_id" value="<?= $user['id'] ?>"><button type="submit" class="dropdown-item">Force Password Reset</button></form>
+                                    <?php if ($user['totp_enabled']): ?>
+                                    <form method="POST" onsubmit="return confirm('Reset 2FA for <?= sanitize($user['name']) ?>?')"><input type="hidden" name="<?= CSRF_TOKEN_NAME ?>" value="<?= generateCSRFToken() ?>"><input type="hidden" name="action" value="reset_2fa"><input type="hidden" name="user_id" value="<?= $user['id'] ?>"><button type="submit" class="dropdown-item">Reset 2FA</button></form>
+                                    <?php endif; ?>
+                                    <div class="dropdown-divider"></div>
+                                    <form method="POST" onsubmit="return confirm('Permanently delete <?= sanitize($user['name']) ?>?')"><input type="hidden" name="<?= CSRF_TOKEN_NAME ?>" value="<?= generateCSRFToken() ?>"><input type="hidden" name="action" value="delete_admin"><input type="hidden" name="user_id" value="<?= $user['id'] ?>"><button type="submit" class="dropdown-item dropdown-item-danger">Delete User</button></form>
+                                </div>
                             </div>
+                            <?php else: ?>
+                            <span style="font-size:0.75rem;color:var(--text-muted);">Current user</span>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>

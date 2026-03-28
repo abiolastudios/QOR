@@ -756,9 +756,15 @@ function copyJsonLd(type) {
                         <td><span class="badge-<?= $r['status_code'] == 301 ? 'blue' : 'orange' ?>"><?= $r['status_code'] ?></span></td>
                         <td><?= number_format($r['hits']) ?></td>
                         <td><?= $r['is_active'] ? '<span class="badge-green">Active</span>' : '<span class="badge-gray">Disabled</span>' ?></td>
-                        <td style="display:flex;gap:4px;">
-                            <a href="api/seo.php?action=toggle_redirect&id=<?= $r['id'] ?>" class="btn btn-secondary btn-sm"><?= $r['is_active'] ? 'Disable' : 'Enable' ?></a>
-                            <a href="api/seo.php?action=delete_redirect&id=<?= $r['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Delete this redirect?')">Delete</a>
+                        <td>
+                            <div class="action-dropdown">
+                                <button class="btn btn-secondary btn-sm" onclick="this.nextElementSibling.classList.toggle('show')">Actions &#9662;</button>
+                                <div class="dropdown-menu">
+                                    <a href="api/seo.php?action=toggle_redirect&id=<?= $r['id'] ?>" class="dropdown-item"><?= $r['is_active'] ? 'Disable' : 'Enable' ?></a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="api/seo.php?action=delete_redirect&id=<?= $r['id'] ?>" class="dropdown-item dropdown-item-danger" onclick="return confirm('Delete this redirect?')">Delete</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>

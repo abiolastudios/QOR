@@ -22,6 +22,13 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Close action dropdowns on click outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.action-dropdown')) {
+        document.querySelectorAll('.action-dropdown .dropdown-menu.show').forEach(m => m.classList.remove('show'));
+    }
+});
+
 // Alert dismiss
 document.querySelectorAll('.alert-close').forEach(btn => {
     btn.addEventListener('click', () => {

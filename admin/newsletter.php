@@ -644,10 +644,16 @@ function runImport() {
                         </td>
                         <td><strong><?= number_format($t['sub_count']) ?></strong></td>
                         <td><?= timeAgo($t['created_at']) ?></td>
-                        <td style="white-space:nowrap;">
-                            <button class="btn btn-secondary btn-sm" onclick="editTag(<?= $t['id'] ?>, '<?= sanitize($t['name']) ?>', '<?= $t['color'] ?>')">Edit</button>
-                            <a href="newsletter.php?tab=subscribers&tag=<?= $t['id'] ?>" class="btn btn-secondary btn-sm">View</a>
-                            <a href="newsletter.php?action=delete_tag&id=<?= $t['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Delete this tag? It will be removed from all subscribers.')">Del</a>
+                        <td>
+                            <div class="action-dropdown">
+                                <button class="btn btn-secondary btn-sm" onclick="this.nextElementSibling.classList.toggle('show')">Actions &#9662;</button>
+                                <div class="dropdown-menu">
+                                    <button class="dropdown-item" onclick="this.closest('.dropdown-menu').classList.remove('show');editTag(<?= $t['id'] ?>, '<?= sanitize($t['name']) ?>', '<?= $t['color'] ?>')">Edit Tag</button>
+                                    <a href="newsletter.php?tab=subscribers&tag=<?= $t['id'] ?>" class="dropdown-item">View Subscribers</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="newsletter.php?action=delete_tag&id=<?= $t['id'] ?>" class="dropdown-item dropdown-item-danger" onclick="return confirm('Delete this tag?')">Delete</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -932,23 +938,24 @@ addCondition('status', 'equals', 'active');
                         <td><?= sanitize($c['author_name']) ?></td>
                         <td><?= timeAgo($c['created_at']) ?></td>
                         <td>
-                            <div class="table-actions">
-                                <a href="campaign-edit.php?id=<?= $c['id'] ?>" class="btn btn-secondary btn-sm">Edit</a>
-                                <?php if ($c['status'] === 'sent'): ?>
-                                <a href="campaign-stats.php?id=<?= $c['id'] ?>" class="btn btn-secondary btn-sm">Stats</a>
-                                <?php endif; ?>
-                                <?php if ($c['status'] !== 'sent'): ?>
-                                <form method="POST" action="api/email.php?action=send_campaign" style="display:inline" onsubmit="return confirm('Send this campaign?')">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="campaign_id" value="<?= $c['id'] ?>">
-                                    <button type="submit" class="btn btn-primary btn-sm">Send</button>
-                                </form>
-                                <?php endif; ?>
-                                <form method="POST" action="api/newsletter.php?action=delete_campaign" style="display:inline" onsubmit="return confirm('Delete this campaign?')">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="id" value="<?= $c['id'] ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">Del</button>
-                                </form>
+                            <div class="action-dropdown">
+                                <button class="btn btn-secondary btn-sm" onclick="this.nextElementSibling.classList.toggle('show')">Actions &#9662;</button>
+                                <div class="dropdown-menu">
+                                    <a href="campaign-edit.php?id=<?= $c['id'] ?>" class="dropdown-item">Edit Campaign</a>
+                                    <?php if ($c['status'] === 'sent'): ?>
+                                    <a href="campaign-stats.php?id=<?= $c['id'] ?>" class="dropdown-item">View Stats</a>
+                                    <?php endif; ?>
+                                    <?php if ($c['status'] !== 'sent' && $c['status'] !== 'sending'): ?>
+                                    <a href="ab-test.php?campaign_id=<?= $c['id'] ?>" class="dropdown-item">A/B Test</a>
+                                    <?php endif; ?>
+                                    <a href="campaign-templates.php?action=from_campaign&id=<?= $c['id'] ?>" class="dropdown-item">Save as Template</a>
+                                    <?php if ($c['status'] !== 'sent' && $c['status'] !== 'sending'): ?>
+                                    <div class="dropdown-divider"></div>
+                                    <form method="POST" action="api/email.php?action=send_campaign" onsubmit="return confirm('Send this campaign?')"><input type="hidden" name="<?= CSRF_TOKEN_NAME ?>" value="<?= generateCSRFToken() ?>"><input type="hidden" name="campaign_id" value="<?= $c['id'] ?>"><button type="submit" class="dropdown-item" style="color:var(--green);">Send Now</button></form>
+                                    <?php endif; ?>
+                                    <div class="dropdown-divider"></div>
+                                    <form method="POST" action="api/newsletter.php?action=delete_campaign" onsubmit="return confirm('Delete this campaign?')"><input type="hidden" name="<?= CSRF_TOKEN_NAME ?>" value="<?= generateCSRFToken() ?>"><input type="hidden" name="id" value="<?= $c['id'] ?>"><button type="submit" class="dropdown-item dropdown-item-danger">Delete</button></form>
+                                </div>
                             </div>
                         </td>
                     </tr>

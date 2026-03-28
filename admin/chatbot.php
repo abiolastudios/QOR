@@ -398,10 +398,16 @@ renderHeader('Chatbot', 'chatbot');
                         <td class="msg-preview" style="max-width:250px;"><?= sanitize(substr($k['response'], 0, 80)) ?>...</td>
                         <td><?= number_format($k['hit_count']) ?></td>
                         <td><?= $k['is_active'] ? '<span class="badge-green">Active</span>' : '<span class="badge-gray">Disabled</span>' ?></td>
-                        <td style="white-space:nowrap;">
-                            <a href="chatbot.php?tab=knowledge&edit_knowledge=<?= $k['id'] ?>" class="btn btn-secondary btn-sm">Edit</a>
-                            <a href="chatbot.php?action=toggle_knowledge&id=<?= $k['id'] ?>" class="btn btn-secondary btn-sm"><?= $k['is_active'] ? 'Disable' : 'Enable' ?></a>
-                            <a href="chatbot.php?action=delete_knowledge&id=<?= $k['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Delete this entry?')">Del</a>
+                        <td>
+                            <div class="action-dropdown">
+                                <button class="btn btn-secondary btn-sm" onclick="this.nextElementSibling.classList.toggle('show')">Actions &#9662;</button>
+                                <div class="dropdown-menu">
+                                    <a href="chatbot.php?tab=knowledge&edit_knowledge=<?= $k['id'] ?>" class="dropdown-item">Edit</a>
+                                    <a href="chatbot.php?action=toggle_knowledge&id=<?= $k['id'] ?>" class="dropdown-item"><?= $k['is_active'] ? 'Disable' : 'Enable' ?></a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="chatbot.php?action=delete_knowledge&id=<?= $k['id'] ?>" class="dropdown-item dropdown-item-danger" onclick="return confirm('Delete this entry?')">Delete</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
