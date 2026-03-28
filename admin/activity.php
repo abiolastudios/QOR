@@ -6,7 +6,8 @@ requireLogin();
 
 $db = getDB();
 $page = max(1, (int)($_GET['page'] ?? 1));
-$perPage = in_array((int)($_GET['per_page'] ?? 25), [10, 25, 50, 100]) ? (int)$_GET['per_page'] : 25;
+$perPageRaw = (int)($_GET['per_page'] ?? 0);
+$perPage = in_array($perPageRaw, [10, 25, 50, 100]) ? $perPageRaw : 25;
 $offset = ($page - 1) * $perPage;
 
 // Filters
