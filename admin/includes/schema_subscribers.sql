@@ -128,3 +128,19 @@ CREATE TABLE IF NOT EXISTS automation_queue (
     INDEX idx_status_schedule (status, scheduled_at),
     INDEX idx_automation (automation_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS campaign_send_queue (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    campaign_id INT NOT NULL,
+    subscriber_id INT NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    unsubscribe_token VARCHAR(64) NOT NULL,
+    status ENUM('pending','sent','failed','retry') NOT NULL DEFAULT 'pending',
+    attempts INT NOT NULL DEFAULT 0,
+    error_message VARCHAR(500) NULL,
+    sent_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
+    INDEX idx_status (status),
+    INDEX idx_campaign (campaign_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

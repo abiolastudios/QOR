@@ -908,7 +908,14 @@ addCondition('status', 'equals', 'active');
                             <span class="badge-orange">Tag</span>
                             <?php endif; ?>
                         </td>
-                        <td><span class="status-badge post-status-<?= $c['status'] ?>"><?= ucfirst($c['status']) ?></span></td>
+                        <td>
+                            <?php if ($c['status'] === 'sending'): ?>
+                            <span class="badge-orange" id="sendStatus_<?= $c['id'] ?>">Sending...</span>
+                            <div style="width:80px;height:4px;background:var(--border);border-radius:2px;margin-top:4px;"><div id="sendProgress_<?= $c['id'] ?>" style="width:0%;height:100%;background:var(--orange);border-radius:2px;transition:width 0.3s;"></div></div>
+                            <?php else: ?>
+                            <span class="status-badge post-status-<?= $c['status'] ?>"><?= ucfirst($c['status']) ?></span>
+                            <?php endif; ?>
+                        </td>
                         <td><?= number_format($c['sent_count']) ?></td>
                         <td><?= number_format($c['open_count']) ?></td>
                         <td><?= sanitize($c['author_name']) ?></td>
@@ -941,6 +948,32 @@ addCondition('status', 'equals', 'active');
         </div>
     </div>
 </div>
+<?php endif; ?>
+
+<?php
+// Progress polling for sending campaigns
+$sendingCampaigns = array_filter($campaigns, fn($c) => $c['status'] === 'sending');
+if (!empty($sendingCampaigns) && $tab === 'campaigns'):
+?>
+<script>
+(function pollProgress() {
+    const ids = [<?= implode(',', array_column($sendingCampaigns, 'id')) ?>];
+    ids.forEach(id => {
+        fetch('api/email.php?action=send_progress&campaign_id=' + id)
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success) return;
+            const pct = d.total > 0 ? Math.round((d.sent / d.total) * 100) : 0;
+            const bar = document.getElementById('sendProgress_' + id);
+            const label = document.getElementById('sendStatus_' + id);
+            if (bar) bar.style.width = pct + '%';
+            if (label) label.textContent = 'Sending ' + d.sent + '/' + d.total;
+            if (d.status === 'sent') { location.reload(); }
+        });
+    });
+    if (ids.length) setTimeout(pollProgress, 3000);
+})();
+</script>
 <?php endif; ?>
 
 <?php renderFooter(); ?>

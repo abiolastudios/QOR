@@ -233,6 +233,7 @@ if ($action === 'preview_template' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 // ===== Send Campaign =====
+// ===== Send Campaign (queue-based) =====
 if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $token = $_POST[CSRF_TOKEN_NAME] ?? '';
     if (!validateCSRF($token)) { setFlash('error', 'Invalid request.'); redirect('../newsletter.php?tab=campaigns'); }
@@ -241,33 +242,184 @@ if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$campaignId) { setFlash('error', 'Invalid campaign.'); redirect('../newsletter.php?tab=campaigns'); }
 
     $db = getDB();
+    try { $db->exec(file_get_contents(__DIR__ . '/../includes/schema_subscribers.sql')); } catch (Exception $e) {}
+
     $stmt = $db->prepare('SELECT * FROM campaigns WHERE id = ?');
     $stmt->execute([$campaignId]);
     $campaign = $stmt->fetch();
 
     if (!$campaign) { setFlash('error', 'Campaign not found.'); redirect('../newsletter.php?tab=campaigns'); }
-    if ($campaign['status'] === 'sent') { setFlash('error', 'Campaign already sent.'); redirect('../newsletter.php?tab=campaigns'); }
+    if ($campaign['status'] === 'sent' || $campaign['status'] === 'sending') { setFlash('error', 'Campaign already sent/sending.'); redirect('../newsletter.php?tab=campaigns'); }
 
-    // Get target subscribers based on audience type
+    $subscribers = getCampaignSubscribers($db, $campaign);
+    if (empty($subscribers)) { setFlash('error', 'No subscribers match this audience.'); redirect('../newsletter.php?tab=campaigns'); }
+
+    // Queue all subscribers
+    $queueStmt = $db->prepare('INSERT INTO campaign_send_queue (campaign_id, subscriber_id, email, unsubscribe_token) VALUES (?, ?, ?, ?)');
+    $queued = 0;
+    foreach ($subscribers as $sub) {
+        try {
+            $queueStmt->execute([$campaignId, $sub['id'], $sub['email'], $sub['unsubscribe_token']]);
+            $queued++;
+        } catch (Exception $e) {}
+    }
+
+    // Mark campaign as sending
+    $db->prepare('UPDATE campaigns SET status = ?, sent_at = NOW(), sent_count = 0 WHERE id = ?')->execute(['sending', $campaignId]);
+
+    logActivity($_SESSION['admin_id'], 'queue_campaign', 'campaign', $campaignId, ['queued' => $queued]);
+    setFlash('success', "{$queued} emails queued for sending. Processing will begin automatically.");
+    redirect('../newsletter.php?tab=campaigns');
+}
+
+// ===== Cron: Process Send Queue =====
+if ($action === 'process_queue') {
+    $db = getDB();
+    try { $db->exec(file_get_contents(__DIR__ . '/../includes/schema_subscribers.sql')); } catch (Exception $e) {}
+
+    $batchSize = 25;
+
+    // Also trigger scheduled campaigns
+    $scheduled = $db->query("SELECT id FROM campaigns WHERE status = 'scheduled' AND scheduled_at <= NOW()")->fetchAll();
+    foreach ($scheduled as $sc) {
+        $camp = $db->prepare('SELECT * FROM campaigns WHERE id = ?');
+        $camp->execute([$sc['id']]);
+        $campData = $camp->fetch();
+        if ($campData) {
+            $subs = getCampaignSubscribers($db, $campData);
+            $qStmt = $db->prepare('INSERT INTO campaign_send_queue (campaign_id, subscriber_id, email, unsubscribe_token) VALUES (?, ?, ?, ?)');
+            foreach ($subs as $s) { try { $qStmt->execute([$sc['id'], $s['id'], $s['email'], $s['unsubscribe_token']]); } catch (Exception $e) {} }
+            $db->prepare('UPDATE campaigns SET status = ?, sent_at = NOW() WHERE id = ?')->execute(['sending', $sc['id']]);
+        }
+    }
+
+    // Process pending queue items
+    $pending = $db->query("SELECT q.*, c.subject, c.content FROM campaign_send_queue q JOIN campaigns c ON q.campaign_id = c.id WHERE q.status IN ('pending', 'retry') AND q.attempts < 3 ORDER BY q.created_at ASC LIMIT {$batchSize}")->fetchAll();
+
+    if (empty($pending)) {
+        // Check if any sending campaigns have finished
+        $sending = $db->query("SELECT id FROM campaigns WHERE status = 'sending'")->fetchAll();
+        foreach ($sending as $sc) {
+            $remaining = $db->prepare("SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ? AND status IN ('pending', 'retry')");
+            $remaining->execute([$sc['id']]);
+            if ($remaining->fetchColumn() == 0) {
+                $sentCount = $db->prepare("SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ? AND status = 'sent'");
+                $sentCount->execute([$sc['id']]);
+                $db->prepare('UPDATE campaigns SET status = ?, sent_count = ? WHERE id = ?')->execute(['sent', $sentCount->fetchColumn(), $sc['id']]);
+            }
+        }
+        jsonResponse(['success' => true, 'processed' => 0, 'message' => 'Queue empty.']);
+    }
+
+    $mailer = new Mailer();
+    $sent = 0;
+    $failed = 0;
+    $trackBase = rtrim(APP_URL, '/') . '/admin/api/track.php';
+
+    foreach ($pending as $item) {
+        // Convert blocks JSON to HTML if needed
+        $emailContent = $item['content'];
+        $decoded = json_decode($emailContent, true);
+        if (is_array($decoded)) $emailContent = blocksToEmailHtml($decoded);
+
+        $personalHtml = getEmailWrapper($emailContent, '{{unsubscribe_url}}');
+        $unsubUrl = rtrim(APP_URL, '/') . '/admin/api/newsletter.php?action=unsubscribe&token=' . $item['unsubscribe_token'];
+        $personalHtml = str_replace(['{{unsubscribe_url}}', '{{email}}'], [$unsubUrl, $item['email']], $personalHtml);
+
+        // Open tracking pixel
+        $trackPixel = '<img src="' . $trackBase . '?action=open&cid=' . $item['campaign_id'] . '&sid=' . $item['subscriber_id'] . '" width="1" height="1" style="display:none;" alt="">';
+        $personalHtml = stripos($personalHtml, '</body>') !== false
+            ? str_ireplace('</body>', $trackPixel . '</body>', $personalHtml)
+            : $personalHtml . $trackPixel;
+
+        // Click tracking
+        $cid = $item['campaign_id'];
+        $sid = $item['subscriber_id'];
+        $personalHtml = preg_replace_callback('/href="(https?:\/\/[^"]+)"/', function($m) use ($trackBase, $cid, $sid) {
+            if (strpos($m[1], 'unsubscribe') !== false) return $m[0];
+            return 'href="' . $trackBase . '?action=click&cid=' . $cid . '&sid=' . $sid . '&url=' . urlencode($m[1]) . '"';
+        }, $personalHtml);
+
+        $result = $mailer->send($item['email'], $item['subject'], $personalHtml);
+
+        if ($result) {
+            $db->prepare('UPDATE campaign_send_queue SET status = ?, sent_at = NOW(), attempts = attempts + 1 WHERE id = ?')->execute(['sent', $item['id']]);
+            // Create campaign log
+            try {
+                $db->prepare('INSERT INTO campaign_logs (campaign_id, subscriber_id, status, sent_at) VALUES (?, ?, ?, NOW())')
+                    ->execute([$item['campaign_id'], $item['subscriber_id'], 'sent']);
+            } catch (Exception $e) {}
+            $sent++;
+        } else {
+            $errors = $mailer->getErrors();
+            $errMsg = $errors ? implode('; ', $errors) : 'Unknown error';
+            $newStatus = $item['attempts'] + 1 >= 3 ? 'failed' : 'retry';
+            $db->prepare('UPDATE campaign_send_queue SET status = ?, attempts = attempts + 1, error_message = ? WHERE id = ?')
+                ->execute([$newStatus, substr($errMsg, 0, 500), $item['id']]);
+            $failed++;
+        }
+
+        // Update campaign sent_count incrementally
+        $db->prepare('UPDATE campaigns SET sent_count = (SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ? AND status = ?) WHERE id = ?')
+            ->execute([$item['campaign_id'], 'sent', $item['campaign_id']]);
+    }
+
+    // Check if any sending campaigns have finished
+    $sending = $db->query("SELECT id FROM campaigns WHERE status = 'sending'")->fetchAll();
+    foreach ($sending as $sc) {
+        $remaining = $db->prepare("SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ? AND status IN ('pending', 'retry')");
+        $remaining->execute([$sc['id']]);
+        if ($remaining->fetchColumn() == 0) {
+            $sentCount = $db->prepare("SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ? AND status = 'sent'");
+            $sentCount->execute([$sc['id']]);
+            $db->prepare('UPDATE campaigns SET status = ?, sent_count = ? WHERE id = ?')->execute(['sent', $sentCount->fetchColumn(), $sc['id']]);
+        }
+    }
+
+    jsonResponse(['success' => true, 'processed' => $sent + $failed, 'sent' => $sent, 'failed' => $failed]);
+}
+
+// ===== Campaign Send Progress =====
+if ($action === 'send_progress') {
+    $campaignId = (int)($_GET['campaign_id'] ?? 0);
+    if (!$campaignId) { jsonResponse(['success' => false], 400); }
+    $db = getDB();
+
+    $total = $db->prepare("SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ?");
+    $total->execute([$campaignId]);
+    $totalCount = (int)$total->fetchColumn();
+
+    $sentCount = $db->prepare("SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ? AND status = 'sent'");
+    $sentCount->execute([$campaignId]);
+    $sent = (int)$sentCount->fetchColumn();
+
+    $failedCount = $db->prepare("SELECT COUNT(*) FROM campaign_send_queue WHERE campaign_id = ? AND status = 'failed'");
+    $failedCount->execute([$campaignId]);
+    $failed = (int)$failedCount->fetchColumn();
+
+    $pending = $totalCount - $sent - $failed;
+    $campaign = $db->prepare('SELECT status FROM campaigns WHERE id = ?');
+    $campaign->execute([$campaignId]);
+
+    jsonResponse(['success' => true, 'total' => $totalCount, 'sent' => $sent, 'failed' => $failed, 'pending' => $pending, 'status' => $campaign->fetchColumn()]);
+}
+
+/**
+ * Get subscribers for a campaign based on audience type
+ */
+function getCampaignSubscribers(PDO $db, array $campaign): array {
     $audienceType = $campaign['audience_type'] ?? 'all';
     $audienceId = $campaign['audience_id'] ?? null;
 
     if ($audienceType === 'segment' && $audienceId) {
-        // Load segment rules and query matching subscribers
         $segStmt = $db->prepare('SELECT rules FROM segments WHERE id = ?');
         $segStmt->execute([$audienceId]);
         $segRules = json_decode($segStmt->fetchColumn() ?: '{}', true);
-        require_once '../includes/helpers.php';
-        require_once 'newsletter.php'; // for getSegmentSubscriberIds — use inline instead
-        // Inline segment query
-        $subIds = [];
         if (!empty($segRules['conditions'])) {
-            // Build query from rules
             $match = $segRules['match'] ?? 'all';
-            $conditions = $segRules['conditions'];
             $w = []; $p = []; $j = []; $ti = 0;
-            foreach ($conditions as $cond) {
-                $f = $cond['field']; $o = $cond['operator']; $v = $cond['value'];
+            foreach ($segRules['conditions'] as $c) {
+                $f = $c['field']; $o = $c['operator']; $v = $c['value'];
                 if ($f === 'status') { $w[] = $o === 'equals' ? 's.status = ?' : 's.status != ?'; $p[] = $v; }
                 elseif ($f === 'source') { if ($o === 'contains') { $w[] = 's.source LIKE ?'; $p[] = "%{$v}%"; } else { $w[] = $o === 'equals' ? 's.source = ?' : 's.source != ?'; $p[] = $v; } }
                 elseif ($f === 'email') { $w[] = $o === 'contains' ? 's.email LIKE ?' : 's.email NOT LIKE ?'; $p[] = "%{$v}%"; }
@@ -276,80 +428,16 @@ if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $joiner = $match === 'any' ? ' OR ' : ' AND ';
             $wSQL = $w ? 'AND (' . implode($joiner, $w) . ')' : '';
-            $jSQL = implode(' ', $j);
-            $stmt2 = $db->prepare("SELECT DISTINCT s.id, s.email, s.unsubscribe_token FROM subscribers s {$jSQL} WHERE s.status = 'active' {$wSQL}");
-            $stmt2->execute($p);
-            $subscribers = $stmt2->fetchAll();
-        } else {
-            $subscribers = $db->query("SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'")->fetchAll();
+            $stmt = $db->prepare("SELECT DISTINCT s.id, s.email, s.unsubscribe_token FROM subscribers s " . implode(' ', $j) . " WHERE s.status = 'active' {$wSQL}");
+            $stmt->execute($p);
+            return $stmt->fetchAll();
         }
     } elseif ($audienceType === 'tag' && $audienceId) {
-        $subscribers = $db->prepare("SELECT DISTINCT s.id, s.email, s.unsubscribe_token FROM subscribers s JOIN subscriber_tags st ON s.id = st.subscriber_id WHERE s.status = 'active' AND st.tag_id = ?");
-        $subscribers->execute([$audienceId]);
-        $subscribers = $subscribers->fetchAll();
-    } else {
-        $subscribers = $db->query("SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'")->fetchAll();
+        $stmt = $db->prepare("SELECT DISTINCT s.id, s.email, s.unsubscribe_token FROM subscribers s JOIN subscriber_tags st ON s.id = st.subscriber_id WHERE s.status = 'active' AND st.tag_id = ?");
+        $stmt->execute([$audienceId]);
+        return $stmt->fetchAll();
     }
-
-    if (empty($subscribers)) { setFlash('error', 'No subscribers match this audience.'); redirect('../newsletter.php?tab=campaigns'); }
-
-    // Convert blocks JSON to HTML if needed
-    $emailContent = $campaign['content'];
-    $decoded = json_decode($emailContent, true);
-    if (is_array($decoded)) {
-        // It's blocks JSON — convert to HTML
-        $emailContent = blocksToEmailHtml($decoded);
-    }
-
-    $trackBase = rtrim(APP_URL, '/') . '/admin/api/track.php';
-    $template = getEmailWrapper($emailContent, '{{unsubscribe_url}}');
-
-    $mailer = new Mailer();
-    $stmtLog = $db->prepare('INSERT INTO campaign_logs (campaign_id, subscriber_id, status, sent_at) VALUES (?, ?, ?, NOW())');
-
-    $sent = 0;
-    $failed = 0;
-
-    foreach ($subscribers as $sub) {
-        // Personalize per subscriber
-        $personalHtml = $template;
-        $unsubUrl = rtrim(APP_URL, '/') . '/admin/api/newsletter.php?action=unsubscribe&token=' . $sub['unsubscribe_token'];
-        $personalHtml = str_replace('{{unsubscribe_url}}', $unsubUrl, $personalHtml);
-        $personalHtml = str_replace('{{email}}', $sub['email'], $personalHtml);
-
-        // Inject open tracking pixel before </body> or at the end
-        $trackPixel = '<img src="' . $trackBase . '?action=open&cid=' . $campaignId . '&sid=' . $sub['id'] . '" width="1" height="1" style="display:none;" alt="">';
-        if (stripos($personalHtml, '</body>') !== false) {
-            $personalHtml = str_ireplace('</body>', $trackPixel . '</body>', $personalHtml);
-        } else {
-            $personalHtml .= $trackPixel;
-        }
-
-        // Wrap all links for click tracking (except unsubscribe link)
-        $personalHtml = preg_replace_callback('/href="(https?:\/\/[^"]+)"/', function($m) use ($trackBase, $campaignId, $sub, $unsubUrl) {
-            $origUrl = $m[1];
-            // Don't wrap unsubscribe links
-            if (strpos($origUrl, 'unsubscribe') !== false) return $m[0];
-            $trackUrl = $trackBase . '?action=click&cid=' . $campaignId . '&sid=' . $sub['id'] . '&url=' . urlencode($origUrl);
-            return 'href="' . $trackUrl . '"';
-        }, $personalHtml);
-
-        // Send
-        $result = $mailer->send($sub['email'], $campaign['subject'], $personalHtml);
-        if ($result) { $sent++; } else { $failed++; }
-
-        // Log
-        $stmtLog->execute([$campaignId, $sub['id'], 'sent']);
-    }
-
-    $stmt = $db->prepare('UPDATE campaigns SET status = ?, sent_at = NOW(), sent_count = ? WHERE id = ?');
-    $stmt->execute(['sent', $sent, $campaignId]);
-
-    logActivity($_SESSION['admin_id'], 'send_campaign', 'campaign', $campaignId, ['sent' => $sent, 'failed' => $failed]);
-
-    $msg = $failed > 0 ? "Sent to {$sent}. {$failed} failed." : "Sent to {$sent} subscribers!";
-    setFlash('success', $msg);
-    redirect('../newsletter.php?tab=campaigns');
+    return $db->query("SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'")->fetchAll();
 }
 
 jsonResponse(['error' => 'Invalid action.'], 400);
