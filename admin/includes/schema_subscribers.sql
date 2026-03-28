@@ -84,3 +84,47 @@ CREATE TABLE IF NOT EXISTS segments (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS automations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    description VARCHAR(500) NULL,
+    trigger_type ENUM('on_subscribe','on_tag','on_date') NOT NULL DEFAULT 'on_subscribe',
+    trigger_value VARCHAR(200) NULL,
+    status ENUM('active','paused','draft') NOT NULL DEFAULT 'draft',
+    total_entered INT NOT NULL DEFAULT 0,
+    total_completed INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_status (status),
+    INDEX idx_trigger (trigger_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS automation_steps (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    automation_id INT NOT NULL,
+    step_order INT NOT NULL DEFAULT 1,
+    delay_value INT NOT NULL DEFAULT 0,
+    delay_unit ENUM('minutes','hours','days') NOT NULL DEFAULT 'days',
+    subject VARCHAR(255) NOT NULL,
+    content LONGTEXT NOT NULL,
+    sent_count INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (automation_id) REFERENCES automations(id) ON DELETE CASCADE,
+    INDEX idx_automation (automation_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS automation_queue (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    automation_id INT NOT NULL,
+    step_id INT NOT NULL,
+    subscriber_id INT NOT NULL,
+    status ENUM('waiting','sent','cancelled') NOT NULL DEFAULT 'waiting',
+    scheduled_at DATETIME NOT NULL,
+    sent_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (automation_id) REFERENCES automations(id) ON DELETE CASCADE,
+    FOREIGN KEY (step_id) REFERENCES automation_steps(id) ON DELETE CASCADE,
+    FOREIGN KEY (subscriber_id) REFERENCES subscribers(id) ON DELETE CASCADE,
+    INDEX idx_status_schedule (status, scheduled_at),
+    INDEX idx_automation (automation_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

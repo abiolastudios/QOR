@@ -93,6 +93,11 @@ if (isPost() && ($_GET['action'] ?? '') === 'assign_tag') {
         if ($subId && $tagId) {
             try {
                 $db->prepare('INSERT INTO subscriber_tags (subscriber_id, tag_id) VALUES (?, ?)')->execute([$subId, $tagId]);
+                // Trigger automations (on_tag)
+                require_once 'api/newsletter.php';
+                if (function_exists('triggerAutomations')) {
+                    try { triggerAutomations($db, $subId, 'on_tag', (string)$tagId); } catch (Exception $e) {}
+                }
             } catch (Exception $e) {} // already tagged
         }
     }

@@ -63,6 +63,9 @@ if ($action === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $mailer->send($email, 'Welcome to Core Chain Newsletter', getSubscriberWelcomeEmail($unsubUrl));
         } catch (Exception $e) { /* silently fail */ }
 
+        // Trigger automations (on_subscribe)
+        try { triggerAutomations($db, $db->lastInsertId(), 'on_subscribe', $source); } catch (Exception $e) {}
+
         jsonResponse(['success' => true, 'message' => 'Subscribed! You\'ll receive our latest updates.']);
     } catch (Exception $e) {
         jsonResponse(['success' => false, 'message' => 'Something went wrong. Please try again.'], 500);
@@ -358,6 +361,91 @@ if ($action === 'preview_segment' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $count = countSegmentSubscribers($db, $rules);
     jsonResponse(['success' => true, 'count' => $count]);
+}
+
+// ===== CRON: Process Automation Queue =====
+if ($action === 'process_automations') {
+    $db = getDB();
+    try { $db->exec(file_get_contents(__DIR__ . '/../includes/schema_subscribers.sql')); } catch (Exception $e) {}
+
+    require_once '../includes/mailer.php';
+
+    // Find queue items ready to send
+    $ready = $db->query("SELECT aq.*, ast.subject, ast.content, s.email, s.unsubscribe_token, a.name as auto_name FROM automation_queue aq JOIN automation_steps ast ON aq.step_id = ast.id JOIN subscribers s ON aq.subscriber_id = s.id JOIN automations a ON aq.automation_id = a.id WHERE aq.status = 'waiting' AND aq.scheduled_at <= NOW() AND s.status = 'active' AND a.status = 'active' ORDER BY aq.scheduled_at ASC LIMIT 50")->fetchAll();
+
+    $mailer = new Mailer();
+    $sent = 0;
+
+    foreach ($ready as $item) {
+        $unsubUrl = rtrim(APP_URL, '/') . '/admin/api/newsletter.php?action=unsubscribe&token=' . $item['unsubscribe_token'];
+        $html = getEmailWrapper($item['content'], $unsubUrl);
+        $html = str_replace('{{email}}', $item['email'], $html);
+
+        $result = $mailer->send($item['email'], $item['subject'], $html);
+
+        if ($result) {
+            $db->prepare('UPDATE automation_queue SET status = ?, sent_at = NOW() WHERE id = ?')->execute(['sent', $item['id']]);
+            $db->prepare('UPDATE automation_steps SET sent_count = sent_count + 1 WHERE id = ?')->execute([$item['step_id']]);
+            $sent++;
+
+            // Check if there's a next step — enqueue it
+            $nextStep = $db->prepare('SELECT * FROM automation_steps WHERE automation_id = ? AND step_order > (SELECT step_order FROM automation_steps WHERE id = ?) ORDER BY step_order ASC LIMIT 1');
+            $nextStep->execute([$item['automation_id'], $item['step_id']]);
+            $next = $nextStep->fetch();
+
+            if ($next) {
+                $delaySeconds = $next['delay_value'] * match($next['delay_unit']) { 'minutes' => 60, 'hours' => 3600, 'days' => 86400, default => 86400 };
+                $scheduledAt = date('Y-m-d H:i:s', time() + $delaySeconds);
+                $db->prepare('INSERT INTO automation_queue (automation_id, step_id, subscriber_id, scheduled_at) VALUES (?, ?, ?, ?)')
+                    ->execute([$item['automation_id'], $next['id'], $item['subscriber_id'], $scheduledAt]);
+            } else {
+                // Automation complete for this subscriber
+                $db->prepare('UPDATE automations SET total_completed = total_completed + 1 WHERE id = ?')->execute([$item['automation_id']]);
+            }
+        }
+    }
+
+    jsonResponse(['success' => true, 'processed' => $sent, 'total_ready' => count($ready)]);
+}
+
+/**
+ * Trigger automations for a subscriber
+ */
+function triggerAutomations(PDO $db, int $subscriberId, string $triggerType, string $triggerValue = ''): void {
+    try { $db->exec(file_get_contents(__DIR__ . '/../includes/schema_subscribers.sql')); } catch (Exception $e) {}
+
+    // Find active automations matching this trigger
+    $stmt = $db->prepare("SELECT a.* FROM automations a WHERE a.status = 'active' AND a.trigger_type = ?");
+    $stmt->execute([$triggerType]);
+    $automations = $stmt->fetchAll();
+
+    foreach ($automations as $auto) {
+        // Check trigger value match
+        if ($triggerType === 'on_subscribe' && $auto['trigger_value'] && $auto['trigger_value'] !== $triggerValue) continue;
+        if ($triggerType === 'on_tag' && $auto['trigger_value'] != $triggerValue) continue;
+
+        // Check subscriber isn't already in this automation
+        $exists = $db->prepare('SELECT 1 FROM automation_queue WHERE automation_id = ? AND subscriber_id = ? LIMIT 1');
+        $exists->execute([$auto['id'], $subscriberId]);
+        if ($exists->fetch()) continue;
+
+        // Get first step
+        $firstStep = $db->prepare('SELECT * FROM automation_steps WHERE automation_id = ? ORDER BY step_order ASC LIMIT 1');
+        $firstStep->execute([$auto['id']]);
+        $step = $firstStep->fetch();
+        if (!$step) continue;
+
+        // Calculate schedule time
+        $delaySeconds = $step['delay_value'] * match($step['delay_unit']) { 'minutes' => 60, 'hours' => 3600, 'days' => 86400, default => 86400 };
+        $scheduledAt = date('Y-m-d H:i:s', time() + $delaySeconds);
+
+        // Enqueue
+        $db->prepare('INSERT INTO automation_queue (automation_id, step_id, subscriber_id, scheduled_at) VALUES (?, ?, ?, ?)')
+            ->execute([$auto['id'], $step['id'], $subscriberId, $scheduledAt]);
+
+        // Increment entered count
+        $db->prepare('UPDATE automations SET total_entered = total_entered + 1 WHERE id = ?')->execute([$auto['id']]);
+    }
 }
 
 /**
