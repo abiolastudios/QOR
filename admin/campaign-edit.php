@@ -41,45 +41,88 @@ renderHeader($pageTitle, 'newsletter');
 
     <div style="display:grid;grid-template-columns:200px 1fr 280px;gap:16px;align-items:start;">
 
-        <!-- LEFT: Block Palette -->
-        <div class="card" style="position:sticky;top:80px;">
-            <div class="card-header"><h2>Blocks</h2></div>
-            <div class="card-body" style="padding:12px;">
-                <div class="block-palette">
-                    <div class="palette-block" draggable="true" data-type="text">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
-                        <span>Text</span>
+        <!-- LEFT: Block Palette + AI -->
+        <div style="position:sticky;top:80px;">
+            <div class="card">
+                <div class="card-header"><h2>Blocks</h2></div>
+                <div class="card-body" style="padding:12px;">
+                    <div class="block-palette">
+                        <div class="palette-block" draggable="true" data-type="text">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+                            <span>Text</span>
+                        </div>
+                        <div class="palette-block" draggable="true" data-type="image">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                            <span>Image</span>
+                        </div>
+                        <div class="palette-block" draggable="true" data-type="button">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm4 14a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                            <span>Button</span>
+                        </div>
+                        <div class="palette-block" draggable="true" data-type="divider">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                            <span>Divider</span>
+                        </div>
+                        <div class="palette-block" draggable="true" data-type="spacer">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M5 8a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z"/></svg>
+                            <span>Spacer</span>
+                        </div>
+                        <div class="palette-block" draggable="true" data-type="columns">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M2 4a1 1 0 011-1h5v14H3a1 1 0 01-1-1V4zm9-1h6a1 1 0 011 1v12a1 1 0 01-1 1h-6V3z"/></svg>
+                            <span>2 Columns</span>
+                        </div>
+                        <div class="palette-block" draggable="true" data-type="heading">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H7v4h6V5h-1a1 1 0 110-2h4a1 1 0 110 2h-1v10h1a1 1 0 110 2h-4a1 1 0 110-2h1v-4H7v4h1a1 1 0 110 2H4a1 1 0 110-2h1V5H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                            <span>Heading</span>
+                        </div>
                     </div>
-                    <div class="palette-block" draggable="true" data-type="image">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
-                        <span>Image</span>
-                    </div>
-                    <div class="palette-block" draggable="true" data-type="button">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm4 14a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
-                        <span>Button</span>
-                    </div>
-                    <div class="palette-block" draggable="true" data-type="divider">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-                        <span>Divider</span>
-                    </div>
-                    <div class="palette-block" draggable="true" data-type="spacer">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M5 8a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z"/></svg>
-                        <span>Spacer</span>
-                    </div>
-                    <div class="palette-block" draggable="true" data-type="columns">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M2 4a1 1 0 011-1h5v14H3a1 1 0 01-1-1V4zm9-1h6a1 1 0 011 1v12a1 1 0 01-1 1h-6V3z"/></svg>
-                        <span>2 Columns</span>
-                    </div>
-                    <div class="palette-block" draggable="true" data-type="heading">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H7v4h6V5h-1a1 1 0 110-2h4a1 1 0 110 2h-1v10h1a1 1 0 110 2h-4a1 1 0 110-2h1v-4H7v4h1a1 1 0 110 2H4a1 1 0 110-2h1V5H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-                        <span>Heading</span>
+
+                    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+                        <div class="form-group" style="margin:0;">
+                            <label>Subject Line</label>
+                            <input type="text" name="subject" id="subjectInput" value="<?= sanitize($campaign['subject'] ?? '') ?>" placeholder="Email subject..." required>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
-                    <div class="form-group" style="margin:0;">
-                        <label>Subject Line</label>
-                        <input type="text" name="subject" id="subjectInput" value="<?= sanitize($campaign['subject'] ?? '') ?>" placeholder="Email subject..." required>
+            <!-- AI Content Writer -->
+            <div class="card">
+                <div class="card-header" style="cursor:pointer;" onclick="document.getElementById('aiPanel').style.display = document.getElementById('aiPanel').style.display === 'none' ? '' : 'none'">
+                    <h2 style="display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 20 20" fill="var(--blue)" width="16" height="16"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11a1 1 0 11-2 0V9a1 1 0 112 0v4zm-1-6a1 1 0 110-2 1 1 0 010 2z"/></svg>
+                        AI Writer
+                    </h2>
+                </div>
+                <div class="card-body" id="aiPanel" style="padding:12px;">
+                    <div class="form-group" style="margin:0 0 8px;">
+                        <label style="font-size:0.7rem;">Mode</label>
+                        <select id="aiMode" style="width:100%;padding:6px;background:var(--bg-input);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:0.8rem;">
+                            <option value="subject">Generate Subject Lines</option>
+                            <option value="body">Write Email Body</option>
+                            <option value="rewrite">Rewrite / Improve</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0 0 8px;">
+                        <label style="font-size:0.7rem;">Tone</label>
+                        <select id="aiTone" style="width:100%;padding:6px;background:var(--bg-input);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:0.8rem;">
+                            <option value="professional">Professional</option>
+                            <option value="casual">Casual</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="friendly">Friendly</option>
+                            <option value="minimal">Minimal</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0 0 8px;">
+                        <label style="font-size:0.7rem;">Prompt</label>
+                        <textarea id="aiPrompt" rows="3" placeholder="e.g. Weekly newsletter about our new staking feature launch" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:0.8rem;resize:vertical;"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-full" onclick="runAiGenerate()" id="aiGenerateBtn" style="font-size:0.8rem;">
+                        Generate
+                    </button>
+                    <div id="aiResult" style="display:none;margin-top:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:10px;max-height:250px;overflow-y:auto;">
+                        <div id="aiResultContent" style="font-size:0.8rem;line-height:1.6;"></div>
+                        <div id="aiResultActions" style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"></div>
                     </div>
                 </div>
             </div>
@@ -522,6 +565,104 @@ function updateAudienceOptions() {
     const type = document.getElementById('audienceType').value;
     document.getElementById('segmentSelect').style.display = type === 'segment' ? 'flex' : 'none';
     document.getElementById('tagSelect').style.display = type === 'tag' ? 'flex' : 'none';
+}
+
+// ===== AI CONTENT WRITER =====
+function runAiGenerate() {
+    const mode = document.getElementById('aiMode').value;
+    const tone = document.getElementById('aiTone').value;
+    const prompt = document.getElementById('aiPrompt').value.trim();
+    const btn = document.getElementById('aiGenerateBtn');
+
+    // For rewrite mode, grab current content
+    let existingText = '';
+    if (mode === 'rewrite') {
+        saveInlineEdits();
+        if (selectedBlockId) {
+            const b = blocks.find(x => x.id === selectedBlockId);
+            if (b && b.content) existingText = b.content;
+            else if (b && b.left) existingText = b.left + '\n' + b.right;
+        }
+        if (!existingText) {
+            existingText = blocks.filter(b => b.type === 'text' || b.type === 'heading').map(b => b.content).join('\n');
+        }
+        if (!existingText) { alert('No text content to rewrite. Add text blocks first.'); return; }
+    }
+
+    if (!prompt && mode !== 'rewrite') { alert('Enter a prompt describing what to generate.'); return; }
+
+    btn.textContent = 'Generating...';
+    btn.disabled = true;
+
+    fetch('api/email.php?action=ai_generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            mode, tone, prompt, existing_text: existingText,
+            csrf_token: '<?= generateCSRFToken() ?>'
+        })
+    })
+    .then(r => r.json())
+    .then(d => {
+        btn.textContent = 'Generate';
+        btn.disabled = false;
+        const resultDiv = document.getElementById('aiResult');
+        const contentDiv = document.getElementById('aiResultContent');
+        const actionsDiv = document.getElementById('aiResultActions');
+
+        if (!d.success) {
+            contentDiv.innerHTML = '<span style="color:var(--red);">' + (d.error || 'Failed') + '</span>';
+            actionsDiv.innerHTML = '';
+            resultDiv.style.display = '';
+            return;
+        }
+
+        resultDiv.style.display = '';
+
+        if (mode === 'subject') {
+            // Show subject lines as clickable options
+            const lines = d.content.split('\n').filter(l => l.trim());
+            contentDiv.innerHTML = '<strong style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Click to use:</strong>';
+            actionsDiv.innerHTML = lines.map(line => {
+                const clean = line.replace(/^\d+[\.\)]\s*/, '').trim();
+                return '<button type="button" class="btn btn-secondary btn-sm" style="text-align:left;font-size:0.75rem;" onclick="document.getElementById(\'subjectInput\').value=this.textContent;document.getElementById(\'aiResult\').style.display=\'none\';">' + clean + '</button>';
+            }).join('');
+        } else {
+            // Show generated body content
+            contentDiv.innerHTML = '<div style="color:var(--text);">' + d.content.replace(/\n/g, '<br>') + '</div>';
+            actionsDiv.innerHTML = '<button type="button" class="btn btn-primary btn-sm" onclick="insertAiContent()">Insert as Text Block</button>' +
+                '<button type="button" class="btn btn-secondary btn-sm" onclick="replaceSelectedBlock()">Replace Selected Block</button>' +
+                '<button type="button" class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.getElementById(\'aiResultContent\').innerText)">Copy</button>';
+        }
+    })
+    .catch(() => {
+        btn.textContent = 'Generate';
+        btn.disabled = false;
+    });
+}
+
+function insertAiContent() {
+    const content = document.getElementById('aiResultContent').querySelector('div')?.innerHTML || document.getElementById('aiResultContent').innerText;
+    addBlock('text');
+    const newBlock = blocks[blocks.length - 1];
+    newBlock.content = content;
+    renderCanvas();
+    document.getElementById('aiResult').style.display = 'none';
+}
+
+function replaceSelectedBlock() {
+    if (!selectedBlockId) { alert('Select a block first.'); return; }
+    const b = blocks.find(x => x.id === selectedBlockId);
+    if (!b) return;
+    const content = document.getElementById('aiResultContent').querySelector('div')?.innerHTML || document.getElementById('aiResultContent').innerText;
+    if (b.type === 'text' || b.type === 'heading') {
+        b.content = content;
+    } else {
+        b.type = 'text';
+        b.content = content;
+    }
+    renderCanvas();
+    document.getElementById('aiResult').style.display = 'none';
 }
 </script>
 

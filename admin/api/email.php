@@ -21,6 +21,95 @@ requireRole('super_admin');
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+// ===== AI Content Generation =====
+if ($action === 'ai_generate' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!validateCSRF($input['csrf_token'] ?? '')) { jsonResponse(['success' => false, 'error' => 'Invalid CSRF.'], 403); }
+
+    $mode = $input['mode'] ?? 'subject'; // subject, body, rewrite
+    $prompt = trim($input['prompt'] ?? '');
+    $tone = $input['tone'] ?? 'professional';
+    $existingText = $input['existing_text'] ?? '';
+
+    if (!$prompt && $mode !== 'rewrite') { jsonResponse(['success' => false, 'error' => 'Prompt is required.'], 400); }
+    if ($mode === 'rewrite' && !$existingText) { jsonResponse(['success' => false, 'error' => 'No text to rewrite.'], 400); }
+
+    // Load AI config from chatbot settings
+    $db = getDB();
+    $aiConfig = [];
+    try {
+        $rows = $db->query("SELECT config_key, config_value FROM chat_config WHERE config_key LIKE 'ai_%'")->fetchAll();
+        foreach ($rows as $r) { $aiConfig[$r['config_key']] = $r['config_value']; }
+    } catch (Exception $e) {}
+
+    $provider = $aiConfig['ai_provider'] ?? 'none';
+    $apiKey = $aiConfig['ai_api_key'] ?? '';
+    $model = $aiConfig['ai_model'] ?? 'gpt-4o-mini';
+
+    if ($provider === 'none' || !$apiKey) {
+        jsonResponse(['success' => false, 'error' => 'AI not configured. Go to Chatbot > Settings to set up an AI provider.'], 400);
+    }
+
+    $toneDesc = [
+        'professional' => 'professional and authoritative',
+        'casual' => 'casual and conversational',
+        'urgent' => 'urgent and action-driven with FOMO',
+        'friendly' => 'warm, friendly and approachable',
+        'minimal' => 'short, minimal and clean',
+    ];
+    $toneText = $toneDesc[$tone] ?? 'professional';
+
+    // Build system prompt based on mode
+    if ($mode === 'subject') {
+        $systemPrompt = "You are an email marketing expert for Core Chain (a biometric blockchain wallet). Generate 5 compelling email subject lines. The tone should be {$toneText}. Keep each under 60 characters. Return ONLY the 5 subject lines, one per line, numbered 1-5. No explanations.";
+        $userPrompt = "Topic/context: {$prompt}";
+    } elseif ($mode === 'body') {
+        $systemPrompt = "You are an email marketing copywriter for Core Chain (a biometric blockchain wallet). Write email body content in HTML (use <p>, <strong>, <ul>, <li> tags). The tone should be {$toneText}. Keep it concise — 3-5 short paragraphs max. Include a clear call-to-action. Do NOT include subject line, just the body content. Do NOT wrap in full HTML document tags.";
+        $userPrompt = "Write an email about: {$prompt}";
+    } elseif ($mode === 'rewrite') {
+        $systemPrompt = "You are an email marketing copywriter. Rewrite the following email content to be more {$toneText}. Keep the same meaning but improve the copy. Return HTML (use <p>, <strong>, <ul>, <li> tags). Only return the rewritten content, no explanations.";
+        $userPrompt = "Rewrite this:\n\n{$existingText}" . ($prompt ? "\n\nAdditional instructions: {$prompt}" : '');
+    } else {
+        jsonResponse(['success' => false, 'error' => 'Invalid mode.'], 400);
+    }
+
+    $maxTokens = (int)($aiConfig['ai_max_tokens'] ?? 500);
+    if ($mode === 'subject') $maxTokens = 200;
+
+    // Call AI
+    require_once 'chat.php'; // for callAiApi — but it's at the bottom, so we duplicate
+    $result = callAiApiDirect($provider, $apiKey, $model, $systemPrompt, $userPrompt, $maxTokens);
+
+    if ($result) {
+        logActivity($_SESSION['admin_id'], 'ai_generate', 'email', null, ['mode' => $mode]);
+        jsonResponse(['success' => true, 'content' => $result, 'mode' => $mode]);
+    } else {
+        jsonResponse(['success' => false, 'error' => 'AI request failed. Check your API key and model.'], 500);
+    }
+}
+
+function callAiApiDirect(string $provider, string $apiKey, string $model, string $systemPrompt, string $userMessage, int $maxTokens): ?string {
+    if ($provider === 'openai') {
+        $url = 'https://api.openai.com/v1/chat/completions';
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $apiKey];
+        $body = json_encode(['model' => $model, 'messages' => [['role' => 'system', 'content' => $systemPrompt], ['role' => 'user', 'content' => $userMessage]], 'max_tokens' => $maxTokens, 'temperature' => 0.8]);
+    } elseif ($provider === 'anthropic') {
+        $url = 'https://api.anthropic.com/v1/messages';
+        $headers = ['Content-Type: application/json', 'x-api-key: ' . $apiKey, 'anthropic-version: 2023-06-01'];
+        $body = json_encode(['model' => $model, 'max_tokens' => $maxTokens, 'system' => $systemPrompt, 'messages' => [['role' => 'user', 'content' => $userMessage]]]);
+    } else { return null; }
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $body, CURLOPT_HTTPHEADER => $headers, CURLOPT_TIMEOUT => 30]);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    $data = json_decode($response, true);
+
+    if ($provider === 'openai') return $data['choices'][0]['message']['content'] ?? null;
+    if ($provider === 'anthropic') return $data['content'][0]['text'] ?? null;
+    return null;
+}
+
 // ===== Test SMTP =====
 if ($action === 'test_smtp' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $token = $_POST[CSRF_TOKEN_NAME] ?? '';
