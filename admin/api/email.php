@@ -204,7 +204,15 @@ if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($subscribers)) { setFlash('error', 'No subscribers match this audience.'); redirect('../newsletter.php?tab=campaigns'); }
 
-    $template = getEmailWrapper($campaign['content'], '{{unsubscribe_url}}');
+    // Convert blocks JSON to HTML if needed
+    $emailContent = $campaign['content'];
+    $decoded = json_decode($emailContent, true);
+    if (is_array($decoded)) {
+        // It's blocks JSON — convert to HTML
+        $emailContent = blocksToEmailHtml($decoded);
+    }
+
+    $template = getEmailWrapper($emailContent, '{{unsubscribe_url}}');
     $mailer = new Mailer();
     $results = $mailer->sendBulk($subscribers, $campaign['subject'], $template);
 
@@ -222,3 +230,28 @@ if ($action === 'send_campaign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 jsonResponse(['error' => 'Invalid action.'], 400);
+
+function blocksToEmailHtml(array $blocks): string {
+    $html = '<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Inter,Arial,sans-serif;">';
+    foreach ($blocks as $b) {
+        $bg = $b['bgColor'] ?? '#ffffff';
+        $pad = $b['padding'] ?? '16px 20px';
+        $html .= '<tr><td>';
+        switch ($b['type'] ?? '') {
+            case 'text': $html .= '<div style="background:' . $bg . ';padding:' . $pad . ';font-size:14px;line-height:1.6;color:#333;">' . ($b['content'] ?? '') . '</div>'; break;
+            case 'heading': $html .= '<div style="background:' . $bg . ';padding:' . $pad . '"><h2 style="margin:0;font-size:' . ($b['fontSize'] ?? '22px') . ';color:' . ($b['color'] ?? '#333') . ';font-weight:700;">' . ($b['content'] ?? '') . '</h2></div>'; break;
+            case 'image':
+                $img = '<img src="' . ($b['src'] ?? '') . '" alt="' . ($b['alt'] ?? '') . '" style="width:' . ($b['width'] ?? '100%') . ';display:block;border-radius:4px;">';
+                if (!empty($b['link'])) $img = '<a href="' . $b['link'] . '">' . $img . '</a>';
+                $html .= '<div style="background:' . $bg . ';padding:' . $pad . ';text-align:center;">' . $img . '</div>';
+                break;
+            case 'button': $html .= '<div style="padding:' . $pad . ';text-align:' . ($b['align'] ?? 'center') . ';"><a href="' . ($b['url'] ?? '#') . '" style="display:inline-block;padding:12px 28px;background:' . ($b['bgColor'] ?? '#4FC3F7') . ';color:' . ($b['textColor'] ?? '#fff') . ';border-radius:' . ($b['borderRadius'] ?? '6px') . ';font-weight:600;font-size:14px;text-decoration:none;">' . ($b['text'] ?? 'Click') . '</a></div>'; break;
+            case 'divider': $html .= '<div style="padding:' . $pad . '"><hr style="border:none;border-top:' . ($b['thickness'] ?? '1px') . ' solid ' . ($b['color'] ?? '#ddd') . ';"></div>'; break;
+            case 'spacer': $html .= '<div style="height:' . ($b['height'] ?? '30px') . ';"></div>'; break;
+            case 'columns': $html .= '<div style="background:' . $bg . ';padding:' . $pad . ';"><table width="100%" cellpadding="0" cellspacing="0"><tr><td width="50%" style="vertical-align:top;padding-right:8px;font-size:14px;line-height:1.6;color:#333;">' . ($b['left'] ?? '') . '</td><td width="50%" style="vertical-align:top;padding-left:8px;font-size:14px;line-height:1.6;color:#333;">' . ($b['right'] ?? '') . '</td></tr></table></div>'; break;
+        }
+        $html .= '</td></tr>';
+    }
+    $html .= '</table>';
+    return $html;
+}
